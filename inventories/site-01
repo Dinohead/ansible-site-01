@@ -1,0 +1,24 @@
+#---------
+# individual
+#---------
+
+testVM.dinohead.ninja
+
+#---------
+# groups
+#---------
+
+[hyperV]
+data.DINOHEAD.NINJA
+lore.DINOHEAD.NINJA
+
+
+#---------
+# groups of groups
+#---------
+
+[site-01:children]
+windows
+
+[windows:children]
+hyperV
