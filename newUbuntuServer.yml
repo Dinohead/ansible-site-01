@@ -24,7 +24,5 @@
 #      dest: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
 #      remote_src: true
 
-#  - name: WIN_COMMAND | Create VM in Hyper-V
-#    win_shell: New-VM -Name "testVM" -ComputerName data -MemoryStartupBytes 2GB -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm"
-
-  - name: WIN_COMMAND |
+  - name: SCRIPT | Run powershell script newVM.ps1 to create new VM
+    script: scripts/newVM.ps1
