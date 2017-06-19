@@ -58,7 +58,7 @@
     win_shell: restart-vm testVM -force
 
   - name: WIN_COMMAND | Connect NIC
-    win_shell: Connect-VMNetworkAdapter -VMName testVM
+    win_shell: Connect-VMNetworkAdapter -VMName testVM -SwitchName SW-1G
 
   - name: WAIT_FOR | Wait for VM to accept SSH
     wait_for:
