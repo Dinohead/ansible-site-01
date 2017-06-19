@@ -25,6 +25,7 @@
   - name: WIN_STAT | Check if the vhdx is present
     win_stat:
       path: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+      get_checksum: false
     register: newUbuntuServer_vmVhdx
 
 
