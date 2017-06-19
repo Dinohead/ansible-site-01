@@ -1,0 +1,19 @@
+---
+#========================
+# File newUbuntuServer.yml
+#
+# Description: Creates a VM on a Hyper-V host
+#
+# Author: dRock Halsey
+
+- name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
+  hosts: ["{{variable_host}}"]
+  connection: local
+
+  tasks:
+
+  - name: WIN_FILE | Ensure Directories are present for new VM
+    delegate_to: data.DINOHEAD.NINJA
+    win_file:
+      path: C:\ClusterStorage\cluster-storage-01\vm\testVM
+      state: directory
