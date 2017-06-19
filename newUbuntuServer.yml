@@ -18,11 +18,21 @@
       - C:\ClusterStorage\cluster-storage-01\vm\testVM
       - C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks
 
-#  - name: WIN_COPY | Copy the VM template vhdx to the new directory
-#    win_copy:
-#      src: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
-#      dest: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
-#      remote_src: true
+  # This check will be used to determine if the VM already exists. If the hard drive
+  # for the VM is found in the expected location, it will be assumed that the VM
+  # already exists. This is to prevent copying the template hard drive over an
+  # existing hard drive (the script should not be destructive to existing VMs).
+  - name: WIN_STAT: Check if the vhdx is present
+    win_stat: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+    register: newUbuntuServer_vmExists
+
+
+  - name: WIN_COPY | Copy the VM template vhdx to the new directory
+    win_copy:
+      src: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
+      dest: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+      remote_src: true
+    when: !newUbuntuServer_vmExists
 
   - name: WIN_COMMAND | Create VM in Hyper-V
     win_shell: if (!(Get-VM -name testVM -erroraction 'ignore')) { New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm"}
