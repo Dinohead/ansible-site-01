@@ -12,5 +12,15 @@
 
   - name: WIN_FILE | Ensure Directories are present for new VM
     win_file:
-      path: C:\ClusterStorage\cluster-storage-01\vm\testVM
+      path: "{{ item }}
       state: directory
+    with_items:
+      - C:\ClusterStorage\cluster-storage-01\vm\testVM
+      - C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks
+
+  - name: WIN_COPY | Copy the VM template vhdx to the new directory
+    win_copy:
+      src: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
+      dest: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+
+      
