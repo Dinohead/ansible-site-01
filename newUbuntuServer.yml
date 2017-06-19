@@ -40,4 +40,4 @@
     win_shell: start-vm testVM
 
   - name: SCRIPT | Run networking script to configure networking
-    win_shell: setHypervVmNetworking.ps1
+    script: setHypervVmNetworking.ps1
