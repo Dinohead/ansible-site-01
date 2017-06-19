@@ -23,7 +23,8 @@
   # already exists. This is to prevent copying the template hard drive over an
   # existing hard drive (the script should not be destructive to existing VMs).
   - name: WIN_STAT: Check if the vhdx is present
-    win_stat: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+    win_stat:
+      path: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
     register: newUbuntuServer_vmExists
 
 
