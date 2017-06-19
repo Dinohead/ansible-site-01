@@ -56,3 +56,13 @@
 
   - name: WIN_COMMAND | Restart VM
     win_shell: restart-vm testVM -force
+
+  - name: WIN_COMMAND | Connect NIC
+    win_shell: Connect-VMNetworkAdapter -VMName testVM
+
+  - name: WAIT_FOR | Wait for VM to accept SSH
+    wait_for:
+      host: 10.0.1.29
+      port: 22
+      state: present
+    connection: local
