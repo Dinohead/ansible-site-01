@@ -62,8 +62,7 @@
 
   - name: WAIT_FOR | Wait for VM to accept SSH
     local_action:
-      module:
-        wait_for:
-          host: 10.0.1.29
-          port: 22
-          state: present
+      module: wait_for
+        host: 10.0.1.29
+        port: 22
+        state: present
