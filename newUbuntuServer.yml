@@ -30,7 +30,7 @@
     register: newUbuntuServer_vmVhdx
 
   - debug:
-    var: newUbuntuServer_vmVhdx
+      var: newUbuntuServer_vmVhdx
 
   - name: WIN_COPY | Copy the VM template vhdx to the new directory
     win_copy:
