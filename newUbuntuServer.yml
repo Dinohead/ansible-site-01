@@ -33,11 +33,11 @@
   - name: WIN_COMMAND | Set VM Memory
     win_shell: Set-VM -Name testVM -DynamicMemory -MemoryMaximumBytes 4GB -MemoryStartupBytes 1GB
 
-  - name: WIN_COMMAND |
+  - name: WIN_COMMAND | Disconnect NIC
     win_shell: Disconnect-VMNetworkAdapter -VMName testVM
 
-  - name: WIN_COMMAND |
+  - name: WIN_COMMAND | Start VM
     win_shell: start-vm testVM
 
-#  - name: WIN_COMMAND |
-#    win_shell:
+  - name: SCRIPT | Run networking script to configure networking
+    win_shell: setHypervVmNetworking.ps1
