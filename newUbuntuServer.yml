@@ -41,3 +41,6 @@
 
   - name: SCRIPT | Run networking script to configure networking
     script: scripts/setHypervVmNetworking.ps1
+
+  - name: WIN_COMMAND | Restart VM
+    win_shell: restart-vm testVM
