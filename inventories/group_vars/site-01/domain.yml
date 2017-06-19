@@ -1,2 +1,8 @@
 ---
 domain: DINOHEAD.NINJA
+
+ansible_user: "{{ vault_domainAdminUser }}@{{ domain }}"
+ansible_password: "{{ vault_domainAdminPw }}"
+ansible_port: 5986
+ansible_connection: winrm
+ansible_winrm_server_cert_validation: ignore
