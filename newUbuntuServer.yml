@@ -25,9 +25,12 @@
   - name: WIN_STAT | Check if the vhdx is present
     win_stat:
       path: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+      get_md5: false
       get_checksum: false
     register: newUbuntuServer_vmVhdx
 
+  -debug:
+    var: newUbuntuServer_vmVhdx
 
   - name: WIN_COPY | Copy the VM template vhdx to the new directory
     win_copy:
