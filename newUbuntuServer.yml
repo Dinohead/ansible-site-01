@@ -29,7 +29,7 @@
       get_checksum: false
     register: newUbuntuServer_vmVhdx
 
-  -debug:
+  - debug:
     var: newUbuntuServer_vmVhdx
 
   - name: WIN_COPY | Copy the VM template vhdx to the new directory
