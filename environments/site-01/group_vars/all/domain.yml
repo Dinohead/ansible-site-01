@@ -2,7 +2,7 @@
 domain: DINOHEAD.NINJA
 
 #variables for windows hosts
-ansible_user: "dinohead\derek"
+ansible_user: "{{ vault_domainAdminUser }}"
 ansible_password: "{{ vault_domainAdminPw }}"
 ansible_port: 5986
 ansible_connection: winrm
