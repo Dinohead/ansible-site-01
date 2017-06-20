@@ -62,10 +62,7 @@
   - name: WIN_SHELL | Connect NIC
     win_shell: Connect-VMNetworkAdapter -VMName testVM -SwitchName SW-1G
 
-  - name: WIN_SHELL | Add VM to Cluster
-    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
-
-- hosts: testVM
+- hosts: testVM.DINOHEAD.NINJA
   connection: local
   tasks:
     wait_for:
