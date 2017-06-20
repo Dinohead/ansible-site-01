@@ -69,10 +69,10 @@
   tasks:
   - name: WAIT_FOR | Wait for response from VM on port 22
   local_action: wait_for
-                port: 22
-                host: 10.0.1.29
-                port: 22
-                state: present
+                port= 22
+                host= 10.0.1.29
+                port= 22
+                state= present
 
 - hosts: dc[0]
   tasks:
