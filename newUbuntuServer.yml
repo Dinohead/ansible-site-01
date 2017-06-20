@@ -36,31 +36,33 @@
 #      remote_src: true
 #    when: not newUbuntuServer_vmVhdx.stat.exists
 #
-#  - name: WIN_COMMAND | Create VM in Hyper-V
-#    win_shell: if (!(Get-VM -name testVM -erroraction 'ignore')) { New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm"}
+#  - name: WIN_SHELL | Create VM in Hyper-V
+#    win_shell:>-
+#      if (!(Get-VM -name testVM -erroraction 'ignore')) {
+#      New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
 #
-#  - name: WIN_COMMAND | Set Number of Proccessors
+#  - name: WIN_SHELL | Set Number of Proccessors
 #    win_shell: Set-VMProcessor testVM -Count 2
 #
-#  - name: WIN_COMMAND | Set VM Memory
+#  - name: WIN_SHELL | Set VM Memory
 #    win_shell: Set-VM -Name testVM -DynamicMemory -MemoryMaximumBytes 4GB -MemoryStartupBytes 1GB
 #
-#  - name: WIN_COMMAND | Disconnect NIC
+#  - name: WIN_SHELL | Disconnect NIC
 #    win_shell: Disconnect-VMNetworkAdapter -VMName testVM
 #
-#  - name: WIN_COMMAND | Start VM
+#  - name: WIN_SHELL | Start VM
 #    win_shell: start-vm testVM
 #
 #  - name: SCRIPT | Run networking script to configure networking
 #    script: scripts/setHypervVmNetworking.ps1
 #
-#  - name: WIN_COMMAND | Restart VM
+#  - name: WIN_SHELL | Restart VM
 #    win_shell: restart-vm testVM -force
 #
-#  - name: WIN_COMMAND | Connect NIC
+#  - name: WIN_SHELL | Connect NIC
 #    win_shell: Connect-VMNetworkAdapter -VMName testVM -SwitchName SW-1G
 #
-#  - name: WIN_COMMAND | Add VM to Cluster
+#  - name: WIN_SHELL | Add VM to Cluster
 #    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
 #
 #  - name: WAIT_FOR | Wait for VM to accept SSH
@@ -73,17 +75,19 @@
 - hosts: dc[0]
   tasks:
 
-  - name: WIN_COMMAND | Register DNS entry with Domain Controller
+  - name: WIN_SHELL | Register DNS entry with Domain Controller
     win_shell: >-
-      'if (!(Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore')) {
+      if (!(Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore')) {
       Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
       else {
       Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force;
-      Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }'
+      Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
 
 - hosts: hyper-v-cluster[0]
   tasks:
 
-  - name: WIN_COMMAND | Add VM to Cluster
-    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk  -erroraction 'ignore'
+  - name: WIN_SHELL | Add VM to Cluster
+    win_shell: >-
+      if (!(Get-ClusterResource -Cluster kirk -Name "Virtual Machine testVM" -erroraction 'ignore')) {
+      Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk  -erroraction 'ignore'
 
