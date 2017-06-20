@@ -39,7 +39,7 @@
 
   - name: WIN_SHELL | Create VM in Hyper-V
     win_shell: |-
-      if (!(Get-VM -name testVM -erroraction 'ignore')) {
+      if ( !( Get-VM -name testVM -erroraction 'ignore' ) ) {
         New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
 
   - name: WIN_SHELL | Set Number of Proccessors
