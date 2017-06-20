@@ -89,5 +89,5 @@
   - name: WIN_SHELL | Add VM to Cluster
     win_shell: |-
       if (!(Get-ClusterResource -Cluster kirk -Name "Virtual Machine testVM" -erroraction 'ignore')) {
-      Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk }
+        Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk }
 
