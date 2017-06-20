@@ -1,10 +1,11 @@
 ---
 #========================
-# File newUbuntuServer.yml
+# File newClusterVm.yml
 #
-# Description: Creates a VM on a Hyper-V host
+# Description: Creates a VM on the failover cluster
 #
 # Author: dRock Halsey
+#========================
 
 - name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
   hosts: hyper-v[0]
@@ -52,9 +53,6 @@
 
   - name: WIN_SHELL | Start VM
     win_shell: start-vm testVM
-
-#  - name: SCRIPT | Run networking script to configure networking
-#    script: scripts/setHypervVmNetworking.ps1
 
   - name: WIN_SHELL | Set Networking
     win_shell: |-

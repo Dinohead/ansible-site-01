@@ -1,0 +1,37 @@
+---
+#========================
+# File destroyClusterVm.yml
+#
+# Description: Destroys a VM on from the failover cluster
+#
+# Author: dRock Halsey
+#========================
+
+- name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
+- hosts: hyper-v-cluster[0]
+  tasks:
+
+  - name: WIN_SHELL | Remove the VM from the cluster
+    win_shell: |-
+      if ( Get-ClusterResource -Cluster kirk -Name "Virtual Machine testVM" -erroraction 'ignore' ) {
+        Remove-ClusterGroup -VMId (Get-VM -Name testVM).VMId -RemoveResources -Cluster kirk -Force }
+
+- hosts: hyper-v[0]
+  tasks:
+
+  - name: WIN_SHELL | Stop the VM
+    win_shell: stop-vm testVM
+
+  - name: WIN_SHELL | Remove the VM from the Hyper-V host
+    win_shell: remove-vm testVM -Force
+
+  - name: WIN_SHELL | Delete vm from cluster storage
+    win_shell: Remove-Item -Recurse -Force "C:\ClusterStorage\cluster-storage-01\vm\testVM"
+
+- hosts: dc[0]
+  tasks:
+
+  - name: WIN_SHELL | Remove DNS entry
+    win_shell: |-
+      if ( Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore' ) {
+        Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force }
