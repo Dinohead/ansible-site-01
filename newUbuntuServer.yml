@@ -68,6 +68,7 @@
   tasks:
   - name: WAIT_FOR | Wait for response from testVM on port 22
     local_action: wait_for
+    args:
       port: 22
       host: 10.0.1.29
       delay: 30
