@@ -14,7 +14,7 @@
   - name: WIN_SHELL | Remove the VM from the cluster
     win_shell: |-
       if ( Get-ClusterResource -Cluster kirk -Name "Virtual Machine testVM" -erroraction 'ignore' ) {
-        Remove-ClusterGroup -VMId (Get-VM -Name testVM).VMId -RemoveResources -Cluster kirk -Force }
+        Remove-ClusterGroup testVM -RemoveResources -cluster kirk }
 
 - hosts: hyper-v[0]
   tasks:
