@@ -37,9 +37,7 @@
 #    when: not newUbuntuServer_vmVhdx.stat.exists
 #
 #  - name: WIN_COMMAND | Create VM in Hyper-V
-#    win_shell: >-
-      if (!(Get-VM -name testVM -erroraction 'ignore')) {
-      New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
+#    win_shell: if (!(Get-VM -name testVM -erroraction 'ignore')) { New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm"}
 #
 #  - name: WIN_COMMAND | Set Number of Proccessors
 #    win_shell: Set-VMProcessor testVM -Count 2
