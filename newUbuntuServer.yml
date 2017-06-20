@@ -37,7 +37,9 @@
 #    when: not newUbuntuServer_vmVhdx.stat.exists
 #
 #  - name: WIN_COMMAND | Create VM in Hyper-V
-#    win_shell: if (!(Get-VM -name testVM -erroraction 'ignore')) { New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm"}
+#    win_shell: >-
+      if (!(Get-VM -name testVM -erroraction 'ignore')) {
+        New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
 #
 #  - name: WIN_COMMAND | Set Number of Proccessors
 #    win_shell: Set-VMProcessor testVM -Count 2
@@ -76,10 +78,10 @@
   - name: WIN_COMMAND | Register DNS entry with Domain Controller
     win_shell: >-
       if (!(Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore')) {
-      Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
+        Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
       else {
-      Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force;
-      Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
+        Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force;
+        Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
 
 - hosts: hyper-v-cluster[0]
   tasks:
