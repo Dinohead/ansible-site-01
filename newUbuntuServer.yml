@@ -65,13 +65,13 @@
 - hosts: testVM.DINOHEAD.NINJA
   connection: local
   gather_facts: false
+   tasks:
 
-  tasks:
-    - name: WAIT_FOR | Wait for response from VM on port 22
-      local_action: wait_for port= 22
-                    host= 10.0.1.29
-                    port= 22
-                    state= present
+   - name: WAIT_FOR | Wait for response from VM on port 22
+     local_action: wait_for port= 22
+                   host= 10.0.1.29
+                   port= 22
+                   state= present
 
 - hosts: dc[0]
   tasks:
