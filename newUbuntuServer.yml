@@ -29,48 +29,48 @@
       get_checksum: false
     register: newUbuntuServer_vmVhdx
 
-#  - name: WIN_COPY | Copy the VM template vhdx to the new directory
-#    win_copy:
-#      src: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
-#      dest: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
-#      remote_src: true
-#    when: not newUbuntuServer_vmVhdx.stat.exists
-#
-#  - name: WIN_SHELL | Create VM in Hyper-V
-#    win_shell:>-
-#      if (!(Get-VM -name testVM -erroraction 'ignore')) {
-#      New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
-#
-#  - name: WIN_SHELL | Set Number of Proccessors
-#    win_shell: Set-VMProcessor testVM -Count 2
-#
-#  - name: WIN_SHELL | Set VM Memory
-#    win_shell: Set-VM -Name testVM -DynamicMemory -MemoryMaximumBytes 4GB -MemoryStartupBytes 1GB
-#
-#  - name: WIN_SHELL | Disconnect NIC
-#    win_shell: Disconnect-VMNetworkAdapter -VMName testVM
-#
-#  - name: WIN_SHELL | Start VM
-#    win_shell: start-vm testVM
-#
-#  - name: SCRIPT | Run networking script to configure networking
-#    script: scripts/setHypervVmNetworking.ps1
-#
-#  - name: WIN_SHELL | Restart VM
-#    win_shell: restart-vm testVM -force
-#
-#  - name: WIN_SHELL | Connect NIC
-#    win_shell: Connect-VMNetworkAdapter -VMName testVM -SwitchName SW-1G
-#
-#  - name: WIN_SHELL | Add VM to Cluster
-#    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
-#
-#  - name: WAIT_FOR | Wait for VM to accept SSH
-#    local_action:
-#      module: wait_for
-#        host=10.0.1.29
-#        port=22
-#        state=present
+  - name: WIN_COPY | Copy the VM template vhdx to the new directory
+    win_copy:
+      src: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
+      dest: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
+      remote_src: true
+    when: not newUbuntuServer_vmVhdx.stat.exists
+
+  - name: WIN_SHELL | Create VM in Hyper-V
+    win_shell: |-
+      if (!(Get-VM -name testVM -erroraction 'ignore')) {
+        New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
+
+  - name: WIN_SHELL | Set Number of Proccessors
+    win_shell: Set-VMProcessor testVM -Count 2
+
+  - name: WIN_SHELL | Set VM Memory
+    win_shell: Set-VM -Name testVM -DynamicMemory -MemoryMaximumBytes 4GB -MemoryStartupBytes 1GB
+
+  - name: WIN_SHELL | Disconnect NIC
+    win_shell: Disconnect-VMNetworkAdapter -VMName testVM
+
+  - name: WIN_SHELL | Start VM
+    win_shell: start-vm testVM
+
+  - name: SCRIPT | Run networking script to configure networking
+    script: scripts/setHypervVmNetworking.ps1
+
+  - name: WIN_SHELL | Restart VM
+    win_shell: restart-vm testVM -force
+
+  - name: WIN_SHELL | Connect NIC
+    win_shell: Connect-VMNetworkAdapter -VMName testVM -SwitchName SW-1G
+
+  - name: WIN_SHELL | Add VM to Cluster
+    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
+
+  - name: WAIT_FOR | Wait for VM to accept SSH
+    local_action:
+      module: wait_for
+        host=10.0.1.29
+        port=22
+        state=present
 
 - hosts: dc[0]
   tasks:
