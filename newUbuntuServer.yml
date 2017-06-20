@@ -77,7 +77,7 @@
   tasks:
 
   - name: WIN_COMMAND | Register DNS entry with Domain Controller
-    win_shell: Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" -erroraction 'ignore'
+    win_shell: Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" -erroraction 'ignore' -Authentication CredSSP
 
 #- hosts: hyper-v-cluster[0]
 #  tasks:
