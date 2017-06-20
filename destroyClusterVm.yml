@@ -8,7 +8,7 @@
 #========================
 
 - name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
-- hosts: hyper-v-cluster[0]
+  hosts: hyper-v-cluster[0]
   tasks:
 
   - name: WIN_SHELL | Remove the VM from the cluster
