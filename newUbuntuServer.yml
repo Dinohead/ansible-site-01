@@ -70,15 +70,13 @@
         port=22
         state=present
 
-- name: PLAYBOOK | Register DNS entry with Domain Controller
-  hosts: dc[0]
+- hosts: dc[0]
   tasks:
 
   - name: WIN_COMMAND | Register DNS entry with Domain Controller
     win_shell: Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29"
 
-- name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
-  hosts: hyper-v-cluster[0]
+- hosts: hyper-v-cluster[0]
   tasks:
 
   - name: WIN_COMMAND | Add VM to Cluster
