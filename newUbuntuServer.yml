@@ -60,9 +60,26 @@
   - name: WIN_COMMAND | Connect NIC
     win_shell: Connect-VMNetworkAdapter -VMName testVM -SwitchName SW-1G
 
+  - name: WIN_COMMAND | Add VM to Cluster
+    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
+
   - name: WAIT_FOR | Wait for VM to accept SSH
     local_action:
       module: wait_for
         host=10.0.1.29
         port=22
         state=present
+
+- name: PLAYBOOK |
+  hosts: heimdall.DINOHEAD.NINJA
+  tasks:
+
+  - name: WIN_COMMAND | Add VM to Cluster
+    win_shell: Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29"
+
+- name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
+  hosts: kirk.DINOHEAD.NINJA
+  tasks:
+
+  - name: WIN_COMMAND | Add VM to Cluster
+    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk

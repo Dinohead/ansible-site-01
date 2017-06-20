@@ -8,10 +8,17 @@ testVM.DINOHEAD.NINJA
 # groups
 #---------
 
-[hyperV]
+[hyper-v-cluster]
+kirk.DINOHEAD.NINJA
+
+[hyper-v]
 data.DINOHEAD.NINJA
 lore.DINOHEAD.NINJA
 
+[dc]
+heimdall.DINOHEAD.NINJA
+mal.DINOHEAD.NINJA
+doc.DINOHEAD.NINJA
 
 #---------
 # groups of groups
@@ -21,4 +28,6 @@ lore.DINOHEAD.NINJA
 windows
 
 [windows:children]
-hyperV
+hyper-v-cluster
+hyper-v
+dc
