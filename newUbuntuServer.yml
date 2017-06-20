@@ -64,6 +64,8 @@
 
 - hosts: testVM.DINOHEAD.NINJA
   connection: local
+  gather_facts: false
+
   tasks:
   - wait_for:
       host: 10.0.1.29
