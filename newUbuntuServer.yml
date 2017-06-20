@@ -80,5 +80,5 @@
   tasks:
 
   - name: WIN_COMMAND | Add VM to Cluster
-    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
+    win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk  -erroraction 'ignore'
 
