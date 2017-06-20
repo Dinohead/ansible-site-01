@@ -65,7 +65,7 @@
 - hosts: testVM.DINOHEAD.NINJA
   connection: local
   tasks:
-    wait_for:
+  - wait_for:
       host: 10.0.1.29
       port: 22
       state: present
