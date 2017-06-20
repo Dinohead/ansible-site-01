@@ -65,12 +65,13 @@
   - name: WIN_SHELL | Add VM to Cluster
     win_shell: Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk
 
-  - name: WAIT_FOR | Wait for VM to accept SSH
-    local_action:
-      module: wait_for
-        host=10.0.1.29
-        port=22
-        state=present
+- hosts: testVM
+  connection: local
+  tasks:
+    wait_for:
+      host: 10.0.1.29
+      port: 22
+      state: present
 
 - hosts: dc[0]
   tasks:
