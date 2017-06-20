@@ -75,11 +75,11 @@
 
   - name: WIN_COMMAND | Register DNS entry with Domain Controller
     win_shell: >-
-      if (!(Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore')) {
+      'if (!(Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore')) {
       Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
       else {
       Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force;
-      Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
+      Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }'
 
 - hosts: hyper-v-cluster[0]
   tasks:
