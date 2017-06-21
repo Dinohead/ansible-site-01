@@ -60,9 +60,9 @@
       		Start-Sleep -Seconds 1
       	}
 
-  - name: WAIT_FOR | Wait 15s for VM services to Start
-    wait_for:
-      delay: 15
+  - name: Pause | Wait 15s for VM services to Start
+    pause:
+      seconds: 15
 
   - name: WIN_SHELL | Set Networking
     win_shell: |-
