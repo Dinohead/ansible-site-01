@@ -22,7 +22,7 @@
   - name: WIN_SHELL | Stop the VM
     win_shell: |-
       if ( Get-VM -name testVM -erroraction 'ignore' ) {
-        stop-vm testVM }
+        stop-vm testVM -Force }
 
   - name: WIN_SHELL | Remove the VM from the Hyper-V host
     win_shell: |-
