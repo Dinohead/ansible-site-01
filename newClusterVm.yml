@@ -54,6 +54,16 @@
   - name: WIN_SHELL | Start VM
     win_shell: start-vm testVM
 
+  - name: WIN_SHELL | Wait for the VM Heartbeat
+    win_shell: |-
+      while( (Get-VM -Name testVM ).HeartBeat -ne  'OkApplicationsUnknown'){
+      		Start-Sleep -Seconds 1
+      	}
+
+  - name: WAIT_FOR | Wait 15s for VM services to Start
+    wait_for:
+      delay: 15
+
   - name: WIN_SHELL | Set Networking
     win_shell: |-
       {
