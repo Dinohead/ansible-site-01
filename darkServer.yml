@@ -7,6 +7,9 @@
 # Author: dRock Halsey
 #========================
 
+- name: PLAYBOOK | Gather Facts
+  hosts: windows
+
 - name: PLAYBOOK | dark server
   hosts: testVM.DINOHEAD.NINJA
   connection: local
