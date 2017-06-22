@@ -3,7 +3,10 @@ fqdn: testVM.dinohead.ninja
 sdn: testVM
 ip: 10.0.1.29
 processors: 2
-memory: 2GB
+memory:
+  type: DynamicMemory
+  min: 1GB
+  max: 4GB
 NIC: SW-1G
 hypervHost: data.dinohead.ninja
 clusterPath: C:\ClusterStorage\cluster-storage-01\vm

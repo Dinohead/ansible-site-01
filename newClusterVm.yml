@@ -35,38 +35,45 @@
     register: newUbuntuServer_vmVhdx
 
   - name: WIN_COPY | Copy the VM template vhdx to the new directory
+    delegate_to: "{{ hypervHost }}"
     win_copy:
       src: "{{ vhdxTemplate }}"
       dest: "{{ clusterPath }}\\{{ sdn }}\\Virtual Hard Disks\\disk-0.vhdx"
       remote_src: true
     when: not newUbuntuServer_vmVhdx.stat.exists
 
-#  - name: WIN_SHELL | Create VM in Hyper-V
-#    win_shell: |-
-#      if ( !( Get-VM -name testVM -erroraction 'ignore' ) ) {
-#        New-VM -Name "testVM" -ComputerName data -VHDPath "C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx" -Path "C:\ClusterStorage\cluster-storage-01\vm" }
-#
-#  - name: WIN_SHELL | Set Number of Proccessors
-#    win_shell: Set-VMProcessor testVM -Count 2
-#
-#  - name: WIN_SHELL | Set VM Memory
-#    win_shell: Set-VM -Name testVM -DynamicMemory -MemoryMaximumBytes 4GB -MemoryStartupBytes 1GB
-#
-#  - name: WIN_SHELL | Disconnect NIC
-#    win_shell: Disconnect-VMNetworkAdapter -VMName testVM
-#
-#  - name: WIN_SHELL | Start VM
-#    win_shell: start-vm testVM
-#
-#  - name: WIN_SHELL | Wait for the VM Heartbeat
-#    win_shell: |-
-#      while( (Get-VM -Name testVM ).HeartBeat -ne  'OkApplicationsUnknown'){
-#      		Start-Sleep -Seconds 1
-#      	}
-#
-#  - name: Pause | Wait 15s for VM services to Start
-#    pause:
-#      seconds: 15
+  - name: WIN_SHELL | Create VM in Hyper-V
+    delegate_to: "{{ hypervHost }}"
+    win_shell: |-
+      if ( !( Get-VM -name {{ sdn }} -erroraction 'ignore' ) ) {
+        New-VM -Name "{{ sdn }}" -ComputerName {{ hypervHost }} -VHDPath "{{ clusterPath }}\{{ sdn }}\Virtual Hard Disks\disk-0.vhdx" -Path "{{ clusterPath }}" }
+
+  - name: WIN_SHELL | Set Number of Proccessors
+    delegate_to: "{{ hypervHost }}"
+    win_shell: Set-VMProcessor {{ sdn }} -Count {{ processors }}
+
+  - name: WIN_SHELL | Set VM Memory
+    delegate_to: "{{ hypervHost }}"
+    win_shell: Set-VM -Name {{ sdn }} -{{ memory.type }} -MemoryMaximumBytes {{ memory.max }} -MemoryStartupBytes {{ memory.min }}
+
+  - name: WIN_SHELL | Disconnect NIC
+    delegate_to: "{{ hypervHost }}"
+    win_shell: Disconnect-VMNetworkAdapter -VMName {{ sdn }}
+
+  - name: WIN_SHELL | Start VM
+    delegate_to: "{{ hypervHost }}"
+    win_shell: start-vm {{ sdn }}
+
+  - name: WIN_SHELL | Wait for the VM Heartbeat
+    delegate_to: "{{ hypervHost }}"
+    win_shell: |-
+      while( (Get-VM -Name {{ sdn }} ).HeartBeat -ne  'OkApplicationsUnknown'){
+      		Start-Sleep -Seconds 1
+      	}
+
+  - name: Pause | Wait 15s for VM services to Start
+    pause:
+      seconds: 15
 #
 #  - name: WIN_SHELL | Set Networking
 #    win_shell: |-
