@@ -1,7 +1,11 @@
 ---
 fqdn: testVM.dinohead.ninja
 sdn: testVM
-ip: 10.0.1.29
+network:
+  ip: 10.0.1.29
+  subnet: 255.255.255.0
+  dns: 10.0.1.2,10.0.1.22,10.0.1.222
+  gateway: 10.0.1.1
 processors: 2
 memory:
   type: DynamicMemory
