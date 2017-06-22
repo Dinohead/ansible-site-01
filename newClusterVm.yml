@@ -19,8 +19,8 @@
       path: "{{ item }}"
       state: directory
     with_items:
-      - C:\ClusterStorage\cluster-storage-01\vm\testVM
-      - C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks
+      - C:\ClusterStorage\cluster-storage-01\vm\"{{ sdn }}"
+      - C:\ClusterStorage\cluster-storage-01\vm\"{{ sdn }}"\Virtual Hard Disks
 
 #  # This check will be used to determine if the VM already exists. If the hard drive
 #  # for the VM is found in the expected location, it will be assumed that the VM
