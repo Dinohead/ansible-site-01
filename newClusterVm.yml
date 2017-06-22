@@ -22,17 +22,18 @@
       - "{{ clusterPath }}\\{{ sdn }}"
       - "{{ clusterPath }}\\{{ sdn }}\\Virtual Hard Disks"
 
-#  # This check will be used to determine if the VM already exists. If the hard drive
-#  # for the VM is found in the expected location, it will be assumed that the VM
-#  # already exists. This is to prevent copying the template hard drive over an
-#  # existing hard drive (the script should not be destructive to existing VMs).
-#  - name: WIN_STAT | Check if the vhdx is present
-#    win_stat:
-#      path: C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks\disk-0.vhdx
-#      get_md5: false
-#      get_checksum: false
-#    register: newUbuntuServer_vmVhdx
-#
+  # This check will be used to determine if the VM already exists. If the hard drive
+  # for the VM is found in the expected location, it will be assumed that the VM
+  # already exists. This is to prevent copying the template hard drive over an
+  # existing hard drive (the script should not be destructive to existing VMs).
+  - name: WIN_STAT | Check if the vhdx is present
+    delegate_to: "{{ hypervHost }}"
+    win_stat:
+      path: "{{ clusterPath }}\\{{ sdn }}\\Virtual Hard Disks\\disk-0.vhdx"
+      get_md5: false
+      get_checksum: false
+    register: newUbuntuServer_vmVhdx
+
 #  - name: WIN_COPY | Copy the VM template vhdx to the new directory
 #    win_copy:
 #      src: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
