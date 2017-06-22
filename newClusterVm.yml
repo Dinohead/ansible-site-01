@@ -179,7 +179,7 @@
       timeout: 400
 
   - name: WIN_SHELL | Register DNS entry with Domain Controller
-    delegate_to: dc[0]
+    delegate_to: "{{ dc[0] }}"
     win_shell: |-
       if (!(Get-DnsServerResourceRecord -Name "{{ hostvar.sdn }}" -ZoneName "{{ domain }}" -erroraction 'ignore')) {
         Add-DnsServerResourceRecordA -Name "{{ hostvar.sdn }}" -ZoneName "{{ domain }}" -AllowUpdateAny -IPv4Address "{{ hostvar.network.ip }}" }
