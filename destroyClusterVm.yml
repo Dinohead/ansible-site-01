@@ -9,6 +9,8 @@
 
 - name: PLAYBOOK | Seek and destroy a cluster VM
   hosts: "{{ variable_host }}"
+  connection: local
+  gather_facts: false
   tasks:
 
   - name: WIN_SHELL | Remove the VM from the cluster
