@@ -170,10 +170,6 @@
     delegate_to: "{{ hypervHost }}"
     win_shell: Connect-VMNetworkAdapter -VMName {{ sdn }} -SwitchName {{ NIC }}
 
-#- hosts: testVM.DINOHEAD.NINJA
-#  connection: local
-#  gather_facts: false
-#  tasks:
   - name: WAIT_FOR | Wait for response from testVM on port 22
     local_action: wait_for
     args:
@@ -181,24 +177,26 @@
       host: "{{ network.ip }}"
       delay: 30
       timeout: 400
-#
-#
-#- hosts: dc[0]
-#  tasks:
-#
-#  - name: WIN_SHELL | Register DNS entry with Domain Controller
-#    win_shell: |-
-#      if (!(Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore')) {
-#        Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
-#      else {
-#        Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force;
-#        Add-DnsServerResourceRecordA -Name "testVM" -ZoneName "dinohead.ninja" -AllowUpdateAny -IPv4Address "10.0.1.29" }
-#
-#- hosts: hyper-v-cluster[0]
-#  tasks:
-#
-#  - name: WIN_SHELL | Add VM to Cluster
-#    win_shell: |-
-#      if ( !( Get-ClusterResource -Cluster kirk -Name "Virtual Machine testVM" -erroraction 'ignore' ) ) {
-#        Add-ClusterVirtualMachineRole -VMName testVM -Cluster kirk }
+
+
+- hosts: dc[0]
+  tasks:
+
+  - name: WIN_SHELL | Register DNS entry with Domain Controller
+    delegate_to: "{{ hypervHost }}"
+    win_shell: |-
+      if (!(Get-DnsServerResourceRecord -Name "{{ sdn }}" -ZoneName "{{ domain }}" -erroraction 'ignore')) {
+        Add-DnsServerResourceRecordA -Name "{{ sdn }}" -ZoneName "{{ domain }}" -AllowUpdateAny -IPv4Address "{{ network.ip }}" }
+      else {
+        Remove-DnsServerResourceRecord -ZoneName "{{ domain }}" -RRType "A" -Name "{{ sdn }}" -Force;
+        Add-DnsServerResourceRecordA -Name "{{ sdn }}" -ZoneName "{{ domain }}" -AllowUpdateAny -IPv4Address "{{ network.ip }}" }
+
+- hosts: hyper-v-cluster[0]
+  tasks:
+
+  - name: WIN_SHELL | Add VM to Cluster
+    delegate_to: {{ clusterHost }}
+    win_shell: |-
+      if ( !( Get-ClusterResource -Cluster {{ clusterHost }} -Name "Virtual Machine {{ sdn }}" -erroraction 'ignore' ) ) {
+        Add-ClusterVirtualMachineRole -VMName {{ sdn }} -Cluster {{ clusterHost }} }
 
