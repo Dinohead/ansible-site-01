@@ -195,7 +195,7 @@
   tasks:
 
   - name: WIN_SHELL | Add VM to Cluster
-    delegate_to: {{ clusterHost }}
+    delegate_to: "{{ clusterHost }}"
     win_shell: |-
       if ( !( Get-ClusterResource -Cluster {{ clusterHost }} -Name "Virtual Machine {{ sdn }}" -erroraction 'ignore' ) ) {
         Add-ClusterVirtualMachineRole -VMName {{ sdn }} -Cluster {{ clusterHost }} }
