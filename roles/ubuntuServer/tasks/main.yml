@@ -1,7 +1,7 @@
 ---
 
 - name: WIN_FILE | Ensure Directories are present for new VM
-  delegate_to: [hyper-v][0]
+  delegate_to: data.DINOHEAD.NINJA
   win_file:
     path: "{{ item }}"
     state: directory
