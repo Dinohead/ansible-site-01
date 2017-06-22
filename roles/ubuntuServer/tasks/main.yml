@@ -2,8 +2,13 @@
 
 - name: WIN_FILE | Ensure Directories are present for new VM
   delegate_to: data.DINOHEAD.NINJA
-  vars_files:
-    - enviornments/site-01/group_vars/windows
+  vars:
+    ansible_user: "derek@dinohead.ninja"
+    ansible_password: "{{ vault_domainAdminPw }}"
+    ansible_port: 5986
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_transport: "credssp"
   win_file:
     path: "{{ item }}"
     state: directory
