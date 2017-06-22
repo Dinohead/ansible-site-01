@@ -4,6 +4,7 @@
   delegate_to: data.DINOHEAD.NINJA
   vars_files:
     - environments/site-01/group_vars/windows.yml
+  win_file:
     path: "{{ item }}"
     state: directory
   with_items:
