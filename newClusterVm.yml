@@ -9,14 +9,12 @@
 
 - name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
   hosts: "{{ variable_host }}"
-  gather_facts: false
   connection: local
-  vars_files:
-    - environments/site-01/group_vars/windows.yml
+  gather_facts: false
   tasks:
 
   - name: WIN_FILE | Ensure Directories are present for new VM
-    delegate_to: "{{ hypervHost }}"
+    delegate_to: data.dinohead.ninja
     win_file:
       path: "{{ item }}"
       state: directory
