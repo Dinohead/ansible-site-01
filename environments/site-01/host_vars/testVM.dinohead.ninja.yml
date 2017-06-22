@@ -6,3 +6,4 @@ processors: 2
 memory: 2GB
 NIC: SW-1G
 hypervHost: data.dinohead.ninja.yml
+clusterPath: C:\ClusterStorage\cluster-storage-01\vm
