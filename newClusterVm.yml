@@ -11,6 +11,8 @@
   hosts: "{{ variable_host }}"
   gather_facts: false
   connection: local
+  vars_files:
+    - environments/site-01/group_vars/windows.yml
   tasks:
 
   - name: WIN_FILE | Ensure Directories are present for new VM
