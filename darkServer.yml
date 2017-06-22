@@ -1,0 +1,13 @@
+---
+#========================
+# File darkServer.yml
+#
+# Description: Creates a dark server on the failover cluster
+#
+# Author: dRock Halsey
+#========================
+
+- name: PLAYBOOK | dark server
+  hosts: testVM.dinohead.ninja
+  roles:
+  - ubuntuServer

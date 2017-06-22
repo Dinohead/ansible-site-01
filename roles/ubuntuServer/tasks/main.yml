@@ -1,0 +1,10 @@
+---
+
+- name: WIN_FILE | Ensure Directories are present for new VM
+  delegate_to: [hyper-v][0]
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - C:\ClusterStorage\cluster-storage-01\vm\testVM
+    - C:\ClusterStorage\cluster-storage-01\vm\testVM\Virtual Hard Disks
