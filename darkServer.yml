@@ -8,7 +8,7 @@
 #========================
 
 - name: PLAYBOOK | dark server
-  hosts: testVM.dinohead.ninja
+  hosts: testVM.DINOHEAD.NINJA
   connection: local
   gather_facts: false
   roles:
