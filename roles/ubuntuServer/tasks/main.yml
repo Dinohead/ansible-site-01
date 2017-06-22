@@ -2,6 +2,8 @@
 
 - name: WIN_FILE | Ensure Directories are present for new VM
   delegate_to: data.DINOHEAD.NINJA
+  include_vars:
+    file: enviornments/site-01/group_vars/windows
   win_file:
     path: "{{ item }}"
     state: directory
