@@ -1,2 +1,8 @@
 ---
 fqdn: testVM.dinohead.ninja
+sdn: testVM
+ip: 10.0.1.29
+processors: 2
+memory: 2GB
+NIC: SW-1G
+host: data.dinohead.ninja

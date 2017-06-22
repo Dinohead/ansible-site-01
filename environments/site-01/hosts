@@ -2,7 +2,7 @@
 # individual
 #---------
 
-testVM.DINOHEAD.NINJA
+testVM.dinohead.ninja
 
 #---------
 # groups
@@ -12,13 +12,13 @@ testVM.DINOHEAD.NINJA
 kirk.dinohead.ninja
 
 [hyper-v]
-data.DINOHEAD.NINJA
-lore.DINOHEAD.NINJA
+data.dinohead.ninja
+lore.dinohead.ninja
 
 [dc]
-heimdall.DINOHEAD.NINJA
-mal.DINOHEAD.NINJA
-doc.DINOHEAD.NINJA
+heimdall.dinohead.ninja
+mal.dinohead.ninja
+doc.dinohead.ninja
 
 #---------
 # groups of groups
