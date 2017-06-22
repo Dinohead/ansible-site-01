@@ -8,7 +8,7 @@
 #========================
 
 - name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
-  hosts: variable_host['host']
+  hosts: "{{ variable_host['host'] }}"
   tasks:
 
   - name: WIN_FILE | Ensure Directories are present for new VM
