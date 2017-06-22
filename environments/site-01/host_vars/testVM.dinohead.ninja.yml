@@ -1,18 +1,20 @@
 ---
-fqdn: testVM.dinohead.ninja
-sdn: testVM
-network:
-  ip: 10.0.1.29
-  subnet: 255.255.255.0
-  dns: 10.0.1.2,10.0.1.22,10.0.1.222
-  gateway: 10.0.1.1
-processors: 2
-memory:
-  type: DynamicMemory
-  min: 1GB
-  max: 4GB
-NIC: SW-1G
-hypervHost: data.dinohead.ninja
-clusterPath: C:\ClusterStorage\cluster-storage-01\vm
-vhdxTemplate: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
-clusterHost: kirk.dinohead.ninja
+hostvar:
+  fqdn: testVM.dinohead.ninja
+  sdn: testVM
+  processors: 2
+  memory:
+    type: DynamicMemory
+    min: 1GB
+    max: 4GB
+  network:
+    vSwitch: SW-1G
+    ip: 10.0.1.29
+    subnet: 255.255.255.0
+    dns: 10.0.1.2,10.0.1.22,10.0.1.222
+    gateway: 10.0.1.1
+  hyperV:
+    host: data.dinohead.ninja
+    cluster: kirk.dinohead.ninja
+    storagePath: C:\ClusterStorage\cluster-storage-01\vm
+    vhdxTemplate: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
