@@ -178,7 +178,7 @@
     local_action: wait_for
     args:
       port: 22
-      host: "{{ ip }}"
+      host: "{{ network.ip }}"
       delay: 30
       timeout: 400
 #
