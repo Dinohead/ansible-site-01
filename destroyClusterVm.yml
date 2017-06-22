@@ -38,7 +38,7 @@
       state: absent
 
   - name: WIN_SHELL | Remove DNS entry
-    delegate_to: "{{ hostvar.hyperV.cluster }}"
+    delegate_to: "{{ groups.dc[0] }}"
     win_shell: |-
       if ( Get-DnsServerResourceRecord -Name "{{ hostvar.sdn }}" -ZoneName "{{ domain }}" -erroraction 'ignore' ) {
         Remove-DnsServerResourceRecord -ZoneName "{{ domain }}" -RRType "A" -Name "{{ hostvar.sdn }}" -Force }
