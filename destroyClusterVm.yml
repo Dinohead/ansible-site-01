@@ -8,36 +8,35 @@
 #========================
 
 - name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host
-  hosts: hyper-v-cluster[0]
+  hosts: {{ variable_host }}
   tasks:
 
   - name: WIN_SHELL | Remove the VM from the cluster
+    delegate_to: "{{ hostvar.hyperV.cluster }}"
     win_shell: |-
-      if ( Get-ClusterResource -Cluster kirk -Name "Virtual Machine testVM" -erroraction 'ignore' ) {
-        Remove-ClusterGroup testVM -RemoveResources -cluster kirk -Force }
-
-- hosts: hyper-v[0]
-  tasks:
+      if ( Get-ClusterResource -Cluster {{ hostvar.hyperV.cluster }} -Name "Virtual Machine {{ hostvar.sdn }}" -erroraction 'ignore' ) {
+        Remove-ClusterGroup {{ hostvar.sdn }} -RemoveResources -cluster {{ hostvar.hyperV.cluster }} -Force }
 
   - name: WIN_SHELL | Stop the VM
+    delegate_to: "{{ hostvar.hyperV.host }}"
     win_shell: |-
-      if ( Get-VM -name testVM -erroraction 'ignore' ) {
-        stop-vm testVM -Force }
+      if ( Get-VM -name {{ hostvar.sdn }} -erroraction 'ignore' ) {
+        stop-vm {{ hostvar.sdn }} -Force }
 
   - name: WIN_SHELL | Remove the VM from the Hyper-V host
+    delegate_to: "{{ hostvar.hyperV.host }}"
     win_shell: |-
-      if ( Get-VM -name testVM -erroraction 'ignore' ) {
-        remove-vm testVM -Force }
+      if ( Get-VM -name {{ hostvar.sdn }} -erroraction 'ignore' ) {
+        remove-vm {{ hostvar.sdn }} -Force }
 
   - name: WIN_FILE | Remove VM from cluster storage
+    delegate_to: "{{ hostvar.hyperV.host }}"
     win_file:
-      path: C:\ClusterStorage\cluster-storage-01\vm\testVM
+      path: "{{ hostvar.hyperV.storagePath }}\\{{ hostvar.sdn }}"
       state: absent
 
-- hosts: dc[0]
-  tasks:
-
   - name: WIN_SHELL | Remove DNS entry
+    delegate_to: "{{ hostvar.hyperV.cluster }}"
     win_shell: |-
-      if ( Get-DnsServerResourceRecord -Name "testVM" -ZoneName "dinohead.ninja" -erroraction 'ignore' ) {
-        Remove-DnsServerResourceRecord -ZoneName "dinohead.ninja" -RRType "A" -Name "testVM" -Force }
+      if ( Get-DnsServerResourceRecord -Name "{{ hostvar.sdn }}" -ZoneName "{{ domain }}" -erroraction 'ignore' ) {
+        Remove-DnsServerResourceRecord -ZoneName "{{ domain }}" -RRType "A" -Name "{{ hostvar.sdn }}" -Force }
