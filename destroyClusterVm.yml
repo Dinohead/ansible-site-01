@@ -14,27 +14,27 @@
   tasks:
 
   - name: WIN_SHELL | Remove the VM from the cluster
-    delegate_to: "{{ hostvar.hyperV.cluster }}"
+    delegate_to: "{{ groups.hyper_v_cluster[0] }}"
     win_shell: |-
-      if ( Get-ClusterResource -Cluster {{ hostvar.hyperV.cluster }} -Name "Virtual Machine {{ hostvar.sdn }}" -erroraction 'ignore' ) {
-        Remove-ClusterGroup {{ hostvar.sdn }} -RemoveResources -cluster {{ hostvar.hyperV.cluster }} -Force }
+      if ( Get-ClusterResource -Cluster {{ groups.hyper_v_cluster[0] }} -Name "Virtual Machine {{ hostvar.sdn }}" -erroraction 'ignore' ) {
+        Remove-ClusterGroup {{ hostvar.sdn }} -RemoveResources -cluster {{ groups.hyper_v_cluster[0] }} -Force }
 
   - name: WIN_SHELL | Stop the VM
-    delegate_to: "{{ hostvar.hyperV.host }}"
+    delegate_to: "{{ groups.hyper_v[0] }}"
     win_shell: |-
       if ( Get-VM -name {{ hostvar.sdn }} -erroraction 'ignore' ) {
         stop-vm {{ hostvar.sdn }} -Force }
 
   - name: WIN_SHELL | Remove the VM from the Hyper-V host
-    delegate_to: "{{ hostvar.hyperV.host }}"
+    delegate_to: "{{ groups.hyper_v[0] }}"
     win_shell: |-
       if ( Get-VM -name {{ hostvar.sdn }} -erroraction 'ignore' ) {
         remove-vm {{ hostvar.sdn }} -Force }
 
   - name: WIN_FILE | Remove VM from cluster storage
-    delegate_to: "{{ hostvar.hyperV.host }}"
+    delegate_to: "{{ groups.hyper_v[0] }}"
     win_file:
-      path: "{{ hostvar.hyperV.storagePath }}\\{{ hostvar.sdn }}"
+      path: "{{ hyperV.storagePath }}\\{{ hostvar.sdn }}"
       state: absent
 
   - name: WIN_SHELL | Remove DNS entry

@@ -1,0 +1,23 @@
+---
+# defaults file for new
+
+newClusterVm:
+  fqdn: "{{ hostvar.fqdn }}"
+  sdn: "{{ hostvar.sdn }}"
+  processors: "{{ hostvar.processors }}"
+  memory:
+    type: "{{ hostvar.memory.type }}"
+    min: "{{ hostvar.memory.min }}"
+    max: "{{ hostvar.memory.max }}"
+  network:
+    vSwitch: "{{ hostvar.network.vSwitch }}"
+    ip: "{{ hostvar.network.ip }}"
+    subnet: "{{ hostvar.network.subnet }}"
+    dns: "{{ hostvar.network.dns }}"
+    gateway: "{{ hostvar.network.gateway }}"
+  hyperV:
+    host: "{{ groups.hyper_v[0] }}"
+    cluster: "{{ groups.hyper_v_cluster[0] }}"
+    storagePath: "{{ hyperV.storagePath }}"
+    vhdxTemplate: "{{ hostvar.vhdxTemplate }}"
+  dnsServer: "{{ groups.dc[0] }}"

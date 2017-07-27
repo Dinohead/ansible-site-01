@@ -13,8 +13,4 @@ hostvar:
     subnet: 255.255.255.0
     dns: 10.0.1.2,10.0.1.22,10.0.1.222
     gateway: 10.0.1.1
-  hyperV:
-    host: data.dinohead.ninja
-    cluster: kirk.dinohead.ninja
-    storagePath: C:\ClusterStorage\cluster-storage-01\vm
-    vhdxTemplate: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
+  vhdxTemplate: "{{ hyperV.template.ubuntuServer1604 }}"

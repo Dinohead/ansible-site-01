@@ -7,12 +7,9 @@
 # Author: dRock Halsey
 #========================
 
-- name: PLAYBOOK | Gather Facts
-  hosts: windows
-
 - name: PLAYBOOK | dark server
-  hosts: testVM.DINOHEAD.NINJA
+  hosts: "{{ variable_host }}"
   connection: local
   gather_facts: false
   roles:
-  - ubuntuServer
+  - newClusterVm

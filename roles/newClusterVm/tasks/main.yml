@@ -1,0 +1,188 @@
+---
+#========================
+# File tasks/main.yml
+#
+# Description: Creates a VM on the failover cluster
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: WIN_FILE | Ensure Directories are present for new VM
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ newClusterVm.hyperV.storagePath }}\\{{ newClusterVm.sdn }}"
+    - "{{ newClusterVm.hyperV.storagePath }}\\{{ newClusterVm.sdn }}\\Virtual Hard Disks"
+
+# This check will be used to determine if the VM already exists. If the hard drive
+# for the VM is found in the expected location, it will be assumed that the VM
+# already exists. This is to prevent copying the template hard drive over an
+# existing hard drive (the script should not be destructive to existing VMs).
+- name: WIN_STAT | Check if the vhdx is present
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_stat:
+    path: "{{ newClusterVm.hyperV.storagePath }}\\{{ newClusterVm.sdn }}\\Virtual Hard Disks\\disk-0.vhdx"
+    get_md5: false
+    get_checksum: false
+  register: newUbuntuServer_vmVhdx
+
+- name: WIN_COPY | Copy the VM template vhdx to the new directory
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_copy:
+    src: "{{ newClusterVm.hyperV.vhdxTemplate }}"
+    dest: "{{ newClusterVm.hyperV.storagePath }}\\{{ newClusterVm.sdn }}\\Virtual Hard Disks\\disk-0.vhdx"
+    remote_src: true
+  when: not newUbuntuServer_vmVhdx.stat.exists
+
+- name: WIN_SHELL | Create VM in Hyper-V
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: |-
+    if ( !( Get-VM -name {{ newClusterVm.sdn }} -erroraction 'ignore' ) ) {
+      New-VM -Name "{{ newClusterVm.sdn }}" -ComputerName {{ newClusterVm.hyperV.host }} -VHDPath "{{ newClusterVm.hyperV.storagePath }}\{{ newClusterVm.sdn }}\Virtual Hard Disks\disk-0.vhdx" -Path "{{ newClusterVm.hyperV.storagePath }}" }
+
+- name: WIN_SHELL | Set Number of Proccessors
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: Set-VMProcessor {{ newClusterVm.sdn }} -Count {{ newClusterVm.processors }}
+
+- name: WIN_SHELL | Set VM Memory
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: Set-VM -Name {{ newClusterVm.sdn }} -{{ newClusterVm.memory.type }} -MemoryMaximumBytes {{ newClusterVm.memory.max }} -MemoryStartupBytes {{ newClusterVm.memory.min }}
+
+- name: WIN_SHELL | Disconnect NIC
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: Disconnect-VMNetworkAdapter -VMName {{ newClusterVm.sdn }}
+
+- name: WIN_SHELL | Start VM
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: start-vm {{ newClusterVm.sdn }}
+
+- name: WIN_SHELL | Wait for the VM Heartbeat
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: |-
+    while( (Get-VM -Name {{ newClusterVm.sdn }} ).HeartBeat -ne  'OkApplicationsUnknown'){
+        Start-Sleep -Seconds 1
+    }
+
+- name: Pause | Wait 15s for VM services to Start
+  pause:
+    seconds: 15
+
+- name: WIN_SHELL | Set Networking
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: |-
+      Function Set-VMNetworkConfiguration {
+           [CmdletBinding()]
+           Param (
+               [Parameter(Mandatory=$true,
+                          Position=1,
+                          ParameterSetName='DHCP',
+                          ValueFromPipeline=$true)]
+               [Parameter(Mandatory=$true,
+                          Position=0,
+                          ParameterSetName='Static',
+                          ValueFromPipeline=$true)]
+               [Microsoft.HyperV.PowerShell.VMNetworkAdapter]$NetworkAdapter,
+
+               [Parameter(Mandatory=$true,
+                          Position=1,
+                          ParameterSetName='Static')]
+               [String[]]$IPAddress=@(),
+
+               [Parameter(Mandatory=$false,
+                          Position=2,
+                          ParameterSetName='Static')]
+               [String[]]$Subnet=@(),
+
+               [Parameter(Mandatory=$false,
+                          Position=3,
+                          ParameterSetName='Static')]
+               [String[]]$DefaultGateway = @(),
+
+               [Parameter(Mandatory=$false,
+                          Position=4,
+                          ParameterSetName='Static')]
+               [String[]]$DNSServer = @(),
+
+               [Parameter(Mandatory=$false,
+                          Position=0,
+                          ParameterSetName='DHCP')]
+               [Switch]$Dhcp
+           )
+
+           $VM = Get-WmiObject -Namespace 'root\virtualization\v2' -Class 'Msvm_ComputerSystem' | Where-Object { $_.ElementName -eq $NetworkAdapter.VMName }
+           $VMSettings = $vm.GetRelated('Msvm_VirtualSystemSettingData') | Where-Object { $_.VirtualSystemType -eq 'Microsoft:Hyper-V:System:Realized' }
+           $VMNetAdapters = $VMSettings.GetRelated('Msvm_SyntheticEthernetPortSettingData')
+
+           $NetworkSettings = @()
+           foreach ($NetAdapter in $VMNetAdapters) {
+               if ($NetAdapter.Address -eq $NetworkAdapter.MacAddress) {
+                   $NetworkSettings = $NetworkSettings + $NetAdapter.GetRelated("Msvm_GuestNetworkAdapterConfiguration")
+               }
+           }
+
+           $NetworkSettings[0].IPAddresses = $IPAddress
+           $NetworkSettings[0].Subnets = $Subnet
+           $NetworkSettings[0].DefaultGateways = $DefaultGateway
+           $NetworkSettings[0].DNSServers = $DNSServer
+           $NetworkSettings[0].ProtocolIFType = 4096
+
+           if ($dhcp) {
+               $NetworkSettings[0].DHCPEnabled = $true
+           } else {
+               $NetworkSettings[0].DHCPEnabled = $false
+           }
+
+           $Service = Get-WmiObject -Class "Msvm_VirtualSystemManagementService" -Namespace "root\virtualization\v2"
+           $setIP = $Service.SetGuestNetworkAdapterConfiguration($VM, $NetworkSettings[0].GetText(1))
+
+           if ($setip.ReturnValue -eq 4096) {
+               $job=[WMI]$setip.job
+
+               while ($job.JobState -eq 3 -or $job.JobState -eq 4) {
+                   start-sleep 1
+                   $job=[WMI]$setip.job
+               }
+
+               if ($job.JobState -eq 7) {
+                   write-host "Success"
+               }
+               else {
+                   $job.GetError()
+               }
+           } elseif($setip.ReturnValue -eq 0) {
+               Write-Host "Success"
+           }
+       } Get-VMNetworkAdapter -VMName {{ newClusterVm.sdn }} | Set-VMNetworkConfiguration -IPAddress {{ newClusterVm.network.ip }} -Subnet {{ newClusterVm.network.subnet }} -DNSServer {{ newClusterVm.network.dns }} -DefaultGateway {{ newClusterVm.network.gateway }}
+
+- name: WIN_SHELL | Restart VM
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: restart-vm {{ newClusterVm.sdn }} -force
+
+- name: WIN_SHELL | Connect NIC
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: Connect-VMNetworkAdapter -VMName {{ newClusterVm.sdn }} -SwitchName {{ newClusterVm.network.vSwitch }}
+
+- name: WAIT_FOR | Wait for response from testVM on port 22
+  local_action: wait_for
+  args:
+    port: 22
+    host: "{{ newClusterVm.network.ip }}"
+    delay: 30
+    timeout: 400
+
+- name: WIN_SHELL | Register DNS entry with Domain Controller
+  delegate_to: "{{ newClusterVm.dnsServer }}"
+  win_shell: |-
+    if (!(Get-DnsServerResourceRecord -Name "{{ newClusterVm.sdn }}" -ZoneName "{{ domain }}" -erroraction 'ignore')) {
+      Add-DnsServerResourceRecordA -Name "{{ newClusterVm.sdn }}" -ZoneName "{{ domain }}" -AllowUpdateAny -IPv4Address "{{ newClusterVm.network.ip }}" }
+    else {
+      Remove-DnsServerResourceRecord -ZoneName "{{ domain }}" -RRType "A" -Name "{{ newClusterVm.sdn }}" -Force;
+      Add-DnsServerResourceRecordA -Name "{{ newClusterVm.sdn }}" -ZoneName "{{ domain }}" -AllowUpdateAny -IPv4Address "{{ newClusterVm.network.ip }}" }
+
+- name: WIN_SHELL | Add VM to Cluster
+  delegate_to: "{{ newClusterVm.hyperV.cluster }}"
+  win_shell: |-
+    if ( !( Get-ClusterResource -Cluster {{ newClusterVm.hyperV.cluster }} -Name "Virtual Machine {{ newClusterVm.sdn }}" -erroraction 'ignore' ) ) {
+      Add-ClusterVirtualMachineRole -VMName {{ newClusterVm.sdn }} -Cluster {{ newClusterVm.hyperV.cluster }} }

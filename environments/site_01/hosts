@@ -8,15 +8,15 @@ testVM.dinohead.ninja
 # groups
 #---------
 
-[hyper-v-cluster]
+[hyper_v_cluster]
 kirk.dinohead.ninja
 
-[hyper-v]
+[hyper_v]
 data.dinohead.ninja
 lore.dinohead.ninja
 
 [dc]
-heimdall.dinohead.ninja
+#heimdall.dinohead.ninja
 mal.dinohead.ninja
 doc.dinohead.ninja
 
@@ -24,10 +24,10 @@ doc.dinohead.ninja
 # groups of groups
 #---------
 
-[site-01:children]
+[site_01:children]
 windows
 
 [windows:children]
-hyper-v-cluster
-hyper-v
+hyper_v_cluster
+hyper_v
 dc

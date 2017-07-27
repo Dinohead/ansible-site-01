@@ -1,4 +1,0 @@
----
-domain: dinohead.ninja
-ansible_winrm_server_cert_validation: ignore
-ansible_winrm_transport: "credssp"
