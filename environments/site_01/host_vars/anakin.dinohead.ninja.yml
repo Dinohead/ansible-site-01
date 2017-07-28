@@ -1,0 +1,16 @@
+---
+hostvar:
+  fqdn: anakin.dinohead.ninja
+  sdn: anakin
+  processors: 2
+  memory:
+    type: DynamicMemory
+    min: 1GB
+    max: 4GB
+  network:
+    vSwitch: SW-1G
+    ip: 10.0.1.16
+    subnet: 255.255.255.0
+    dns: 10.0.1.2,10.0.1.22,10.0.1.222
+    gateway: 10.0.1.1
+  vhdxTemplate: "{{ hyperV.template.ubuntuServer1604 }}"

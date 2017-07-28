@@ -12,4 +12,5 @@
   connection: local
   gather_facts: false
   roles:
-  - newClusterVm
+#  - newClusterVm
+  - updateUbuntu

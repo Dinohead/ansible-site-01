@@ -8,6 +8,9 @@ testVM.dinohead.ninja
 # groups
 #---------
 
+[dark_server]
+anakin.dinohead.ninja
+
 [hyper_v_cluster]
 kirk.dinohead.ninja
 
@@ -26,8 +29,13 @@ doc.dinohead.ninja
 
 [site_01:children]
 windows
+linux
 
 [windows:children]
 hyper_v_cluster
 hyper_v
 dc
+
+[linux:children]
+dark_server
+

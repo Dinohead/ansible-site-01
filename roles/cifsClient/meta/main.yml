@@ -1,6 +1,6 @@
 galaxy_info:
   author: Derek 'dRock' Halsey
-  description: your description
+  description: Creates cifs mounts on Ubuntu server
   company: dinoHead
 
   # If the issue tracker for your role is not on github, uncomment the

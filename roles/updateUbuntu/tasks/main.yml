@@ -1,0 +1,40 @@
+---
+#========================
+# File tasks/main.yml
+#
+# Description: Updates ubuntu server
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- debug:
+    var: ansible_user
+
+- name: APT | Update, Upgrade, and Autoremove Packages on Ubuntu System
+  become: true
+  apt:
+    autoremove: true
+    update_cache: true
+    upgrade: dist
+
+- name: Check if a reboot is required
+  stat:
+    path: /var/run/reboot-required
+    get_md5: false
+  register: updateUbuntu.file
+
+- debug:
+    var: ansible_user
+
+#- name: Reboot the server
+#  become: true
+#  command: /sbin/reboot
+#  when: updateUbuntu.file.stat.exists == true
+#
+#- name: WAIT_FOR | Wait for response from testVM on port 22
+#  local_action: wait_for
+#  args:
+#    port: 22
+#    host: "{{ inventory_hostname }}"
+#    delay: 30
+#    timeout: 400
