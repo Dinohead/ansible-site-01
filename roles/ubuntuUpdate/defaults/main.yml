@@ -7,3 +7,5 @@
 # Author: Derek 'dRock' Halsey
 #========================
 
+ubuntuUpdate:
+  fqdn: "{{ hostvar.fqdn }}"

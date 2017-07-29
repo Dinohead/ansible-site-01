@@ -3,10 +3,28 @@
 #---------
 
 testVM.dinohead.ninja
+anakin.dinohead.ninja
+link.dinohead.ninja
+kirk.dinohead.ninja
+data.dinohead.ninja
+lore.dinohead.ninja
+heimdall.dinohead.ninja
+mal.dinohead.ninja
+doc.dinohead.ninja
 
 #---------
 # groups
 #---------
+
+[ubuntu_server]
+testVM.dinohead.ninja
+anakin.dinohead.ninja
+link.dinohead.ninja
+
+[ubuntu_desktop]
+
+[plex_server]
+link.dinohead.ninja
 
 [dark_server]
 anakin.dinohead.ninja
@@ -36,6 +54,10 @@ hyper_v_cluster
 hyper_v
 dc
 
+[ubuntu:children]
+ubuntu_desktop
+ubuntu_server
+
 [linux:children]
-dark_server
+ubuntu
 

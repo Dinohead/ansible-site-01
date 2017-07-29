@@ -1,0 +1,41 @@
+---
+#========================
+# File tasks/main.yml
+#
+# Description: Updates ubuntu server
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: APT | Update, Upgrade, and Autoremove Packages on Ubuntu System
+  become: true
+  become_user: root
+  apt:
+    autoremove: true
+    update_cache: true
+    upgrade: dist
+
+- name: Check if a reboot is required
+  stat:
+    path: /var/run/reboot-required
+    get_md5: false
+  register: ubuntuUpdate_rebootRequired
+
+- name: SHELL | reboot the system if updates require reboot
+  become: true
+  become_user: root
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  when: ubuntuUpdate_rebootRequired.stat.exists
+  register: ubuntuUpdate_reboot
+
+- name: WAIT_FOR | Wait for ssh to resume
+  local_action:
+    module: wait_for
+    port: 22
+    host: "{{ ubuntuUpdate.fqdn }}"
+    delay: 30
+    timeout: 400
+  when: ubuntuUpdate_reboot.changed
+

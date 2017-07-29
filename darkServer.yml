@@ -7,10 +7,16 @@
 # Author: dRock Halsey
 #========================
 
+#- name: PLAYBOOK | dark server
+#  hosts: "{{ variable_host }}"
+#  connection: local
+#  gather_facts: false
+#  roles:
+#  - newClusterVm
+
 - name: PLAYBOOK | dark server
   hosts: "{{ variable_host }}"
-  connection: local
   gather_facts: false
   roles:
-#  - newClusterVm
-  - updateUbuntu
+  - ubuntuSetup
+  - ubuntuUpdate

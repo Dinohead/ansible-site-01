@@ -1,0 +1,23 @@
+---
+#========================
+# File defaults/main.yml
+#
+# Description: default variables for role
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+ubuntuSetup:
+  user:
+    name: "{{ ansible_user }}"
+    password: "{{ vault_domainAdminPw }}"
+
+  ssh:
+    public: "{{ vault_ssh.public }}"
+    private: "{{ vault_ssh.private }}"
+    authorizedKeys: "{{ vault_ssh.authorizedKeys }}"
+
+  sdn: "{{ hostvar.sdn }}"
+  fqdn: "{{ hostvar.fqdn }}"
+  ip: "{{ hostvar.network.ip }}"
+  becomePass: "{{ vault_domainAdminPw }}"

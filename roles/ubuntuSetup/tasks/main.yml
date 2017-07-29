@@ -1,0 +1,90 @@
+---
+#========================
+# File tasks/main.yml
+#
+# Description:
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: FILE | Ensure .ssh directory exists
+  file:
+    path: /home/{{ ubuntuSetup.user.name }}/.ssh
+    state: directory
+    owner: "{{ ubuntuSetup.user.name }}"
+    group: "{{ ubuntuSetup.user.name }}"
+    mode: "u=rwx"
+  vars:
+    ansible_password: "{{ ubuntuSetup.user.password }}"
+
+- name: TEMPLATE | Template out public and private ssh keys
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ubuntuSetup.user.name }}"
+    group: "{{ ubuntuSetup.user.name }}"
+    mode: "u=rw"
+  with_items:
+  - { src: id_rsa.j2, dest: "/home/{{ ubuntuSetup.user.name }}/.ssh/id_rsa" }
+  - { src: id_rsa.pub.j2, dest: "/home/{{ ubuntuSetup.user.name }}/.ssh/id_rsa.pub" }
+  vars:
+    ansible_password: "{{ ubuntuSetup.user.password }}"
+
+- name: LINEINFILE | Ensure public key is in authorized_keys
+  lineinfile:
+    line: "{{ ubuntuSetup.ssh.authorizedKeys }}"
+    path: /home/{{ ubuntuSetup.user.name }}/.ssh/authorized_keys
+    state: present
+    create: true
+  vars:
+    ansible_password: "{{ ubuntuSetup.user.password }}"
+
+- name: LINEINFILE | Setup password-less root user
+  become: true
+  become_user: root
+  lineinfile:
+    line: "{{ ubuntuSetup.user.name }} ALL=(ALL:ALL) NOPASSWD:ALL"
+    path: /etc/sudoers
+    state: present
+  vars:
+    ansible_become_pass: "{{ ubuntuSetup.becomePass }}"
+
+- name: TEMPLATE | Set system hostname
+  become: true
+  become_user: root
+  template:
+    src: hostname.j2
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  register: ubuntuSetup_hostname
+
+- name: TEMPLATE | Fix hostfile
+  become: true
+  become_user: root
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  register: ubuntuSetup_hostfile
+
+- name: SHELL | restart system if hostname was changed
+  become: true
+  become_user: root
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  when: ubuntuSetup_hostname.changed or ubuntuSetup_hostfile.changed
+  register: ubuntuSetup_reboot
+
+- name: WAIT_FOR | Wait for ssh to resume
+  local_action:
+    module: wait_for
+    port: 22
+    host: "{{ ubuntuSetup.fqdn }}"
+    delay: 30
+    timeout: 400
+  when: ubuntuSetup_reboot.changed

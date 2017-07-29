@@ -1,2 +1,2 @@
 ansible_user: drock
-ansible_password: "{{ vault_domainAdminPw }}"
+#ansible_password: "{{ vault_domainAdminPw }}"
