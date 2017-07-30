@@ -1,2 +1,79 @@
 ---
-# tasks file for new
+#========================
+# File tasks/main.yml
+#
+# Description: Creates a VM on the failover cluster
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: APT | Install Cifs-utils
+  become: true
+  become_user: root
+  apt:
+    name: cifs-utils
+    state: present
+
+- name: SHELL | Stop cifs from hanging on shutdown
+  become: true
+  become_user: root
+  shell: "{{ item }}"
+  with_items:
+  - update-rc.d -f umountnfs.sh remove
+  - update-rc.d umountnfs.sh stop 15 0 6 .
+
+- name: GROUP | Ensure the samba group is present
+  become: true
+  become_user: root
+  group:
+    gid: "{{ ubuntuCifsClient.group.gid }}"
+    name: "{{ ubuntuCifsClient.group.name }}"
+    state: present
+
+- name: USER | add user to samba group
+  user:
+    name: "{{ ubuntuCifsClient.user.name }}"
+    appdend: true
+    groups: "{{ ubuntuCifsClient.group.name }}"
+
+- name: TEMPLATE | Template the smbcredentials file
+  become: root
+  become_user: root
+  template:
+    src: smbcredentials
+    dest: /root/.smbcredentials
+    owner: root
+    group: root
+    mode: "u=rw"
+
+#
+##create credentials file
+#touch /home/drock/.smbcredentials
+#printf "username=$username" | sudo tee --append /home/drock/.smbcredentials > /dev/null
+#printf "\npassword=$password" | sudo tee --append /home/drock/.smbcredentials > /dev/null
+#printf "\ndomain=$domain" | sudo tee --append /home/drock/.smbcredentials > /dev/null
+#
+##make credentials visible only to root
+#sudo chown root /home/drock/.smbcredentials
+#sudo chmod 600 /home/drock/.smbcredentials
+#
+##define share properties
+#serverAddress=wopr.dinohead.ninja
+#shareName=Unsorted
+#mountPoint=/home/drock/wopr
+#writePrivilege=rw     #rw for read/write, ro for read only
+#smbCredentialsFile=/home/drock/.smbcredentials
+#
+#
+##Add line to /etc/fstab for share
+#printf "\n#automount $mountPoint on $serverAddress" | sudo tee --append /etc/fstab > /dev/null
+#
+#printf "\n//$serverAddress/$shareName $mountPoint cifs $writePrivilege,iocharset=utf8,credentials=$smbCredentialsFile,dir_mode=0775,gid=2473 0 0" | sudo tee --append /etc/fstab > /dev/null
+#
+#
+#
+##Create the mountpoint
+#mkdir $mountPoint
+#
+##mount the share
+#sudo mount -a

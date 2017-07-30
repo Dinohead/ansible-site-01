@@ -6,3 +6,13 @@
 #
 # Author: Derek 'dRock' Halsey
 #========================
+
+ubuntuCifsClient:
+  user:
+    name: "{{ ansible_user }}"
+    password: "{{ vault_domainAdminPw }}"
+  group:
+    gid: 2473
+    name: samba
+
+  mounts:
