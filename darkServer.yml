@@ -7,7 +7,7 @@
 # Author: dRock Halsey
 #========================
 
-- name: PLAYBOOK | dark server
+- name: Shhhh... we're creatinga dark server
   hosts: "{{ variable_host }}"
   connection: local
   gather_facts: false
@@ -16,10 +16,12 @@
   tags:
   - spawn
 
-- name: PLAYBOOK | dark server
+- name: Initial Ububtu Configuration
   hosts: "{{ variable_host }}"
   gather_facts: false
   roles:
   - ubuntuSetup
   - ubuntuUpdate
   - ubuntuCifsClient
+  tags:
+  - initalConfig

@@ -14,5 +14,12 @@ ubuntuCifsClient:
   group:
     gid: 2473
     name: samba
-
-  mounts:
+  smbCredentialsDir: /root/smbcredentials
+  mount: "{{ hostvar.mount }}"
+#   mounts should contain a list of the form:
+#    - name: video
+#      server: spok
+#      username: "{{ vault_domainAdminUser }}"
+#      password: "{{ vault_domainAdminPw }}"
+#      domain: "{{ domain }}"
+#      permission: rw

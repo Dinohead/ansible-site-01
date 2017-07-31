@@ -14,3 +14,19 @@ hostvar:
     dns: 10.0.1.2,10.0.1.22,10.0.1.222
     gateway: 10.0.1.1
   vhdxTemplate: "{{ hyperV.template.ubuntuServer1604 }}"
+  mount:
+  - name: video
+    server: spok
+    fqdn: spok.dinohead.ninja
+    username: "{{ vault_domainAdminUser }}"
+    password: "{{ vault_domainAdminPw }}"
+    domain: "{{ domain }}"
+    permission: rw
+
+  - name: backup
+    server: T1000
+    fqdn: t1000.dinohead.ninja
+    username: "{{ vault_domainAdminUser }}"
+    password: "{{ vault_domainAdminPw }}"
+    domain: "{{ domain }}"
+    permission: rw

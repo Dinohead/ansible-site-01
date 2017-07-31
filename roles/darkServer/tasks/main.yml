@@ -1,2 +1,141 @@
 ---
-# tasks file for new
+#========================
+# File tasks/main.yml
+#
+# Description: Creates a dark server
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: APT | Install openvpn
+  become: true
+  become_user: root
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - openvpn
+  - unzip
+
+- name: TEMPLATE | configure systemd service for openvpn
+  template:
+    src: openvpn.service.j2
+    dest: /etc/systemd/system/openvpn@openvpn.service
+    owner: root
+    group: root
+
+- name: SYSTEMD | Enable the openvpn service
+  become: true
+  become_user: root
+  systemd:
+    daemon_reload: true
+    enabled: true
+    name: openvpn@openvpn.service
+
+- name: UNARCHIVE | Download and extract PIA app
+  unarchive:
+    src: https://example.com/example.zip
+    dest: /usr/local/bin
+    remote_src: True
+
+##setup pia configuration file
+#sudo apt-get install unzip -y
+#cd /tmp
+#sudo wget https://www.privateinternetaccess.com/openvpn/openvpn.zip
+#sudo unzip openvpn.zip
+#sudo cp crl.rsa.2048.pem ca.rsa.2048.crt /etc/openvpn/
+#sudo vim /etc/openvpn/openvpn.conf
+#
+##pia credentials
+#sudo vim /etc/openvpn/login.txt
+#
+##open the following file and replace the following lines
+## foreign_option_1='dhcp-option DNS 193.43.27.132'
+## foreign_option_2='dhcp-option DNS 193.43.27.133'
+## foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
+#sudo vim /etc/openvpn/update-resolv-conf
+##replace with:
+#foreign_option_1='dhcp-option DNS 209.222.18.222'
+#foreign_option_2='dhcp-option DNS 209.222.18.218'
+#foreign_option_3='dhcp-option DNS 8.8.8.8'
+#
+##create vpn user
+#sudo adduser --disabled-login vpn
+#sudo usermod -a -G samba vpn
+#sudo usermod -a -G drock vpn
+#sudo usermod -a -G vpn drock
+#
+##isolate vpn user from internet
+#sudo iptables -F
+#sudo iptables -A OUTPUT ! -o lo -m owner --uid-owner vpn -j DROP
+#sudo apt-get install iptables-persistent -y
+#sudo vim /etc/openvpn/iptables.sh
+#sudo chmod +x /etc/openvpn/iptables.sh
+#sudo vim /etc/openvpn/routing.sh
+#sudo chmod +x /etc/openvpn/routing.sh
+#
+#sudo vim /etc/iproute2/rt_tables
+##add the following line:
+#200		vpn
+#
+#sudo vim /etc/sysctl.d/9999-vpn.conf
+#sudo sysctl -p
+#
+##reboot and check configuration
+#sudo reboot now
+#sudo systemctl status openvpn@openvpn.service.j2
+#curl ipinfo.io
+#sudo -u vpn -i -- curl ipinfo.io
+#sudo -u vpn -i -- cat /etc/resolv.conf
+#
+##############http://www.htpcguides.com/configure-deluge-for-vpn-split-tunneling-ubuntu-16-04/
+##if everything is good, continue to add deluge and configure
+#sudo add-apt-repository ppa:deluge-team/ppa
+#sudo apt-get update
+#sudo apt-get install deluged deluge-web -y
+#
+##configure logs
+#sudo mkdir -p /var/log/deluge
+#sudo chown -R vpn:vpn /var/log/deluge
+#sudo chmod -R 770 /var/log/deluge
+#sudo vim /etc/logrotate.d/deluge
+#
+##create systemd service for daemen and web
+#sudo vim /etc/systemd/system/deluged.service
+#sudo systemctl enable deluged.service
+#sudo vim /etc/systemd/system/deluge-web.service
+#sudo systemctl enable deluge-web.service
+#
+##create auto connect
+#sudo systemctl restart deluged.service deluge-web.service
+#sudo systemctl stop deluged.service deluge-web.service
+#
+#sudo vim /home/vpn/.config/deluge/web.conf
+##edit default_daemon:
+#"default_daemon": "127.0.0.1:58846",
+#
+#sudo systemctl restart deluged.service
+#sudo systemctl restart deluge-web.service
+#
+##deluge should be running now, but we can't get to it (that's a good thing)
+#
+##configure nginx
+#sudo apt-get install nginx -y
+#sudo unlink /etc/nginx/sites-enabled/default
+#sudo vim /etc/nginx/sites-available/reverse
+#sudo ln -s /etc/nginx/sites-available/reverse /etc/nginx/sites-enabled/reverse
+#
+##test nginx -t
+#sudo nginx -t
+#
+##start everything up
+#sudo systemctl restart nginx.service
+#sudo systemctl restart deluged.service
+#sudo systemctl restart deluge-web.service
+#
+##log into mace.dinohead.ninj/deluge, password -deluge
+#
+#sudo systemctl restart nginx.service deluged.service deluge-web.service
+#
+##check everything
+#sudo systemctl status openvpn.service.j2 deluged.service deluge-web.service && curl ipinfo.io && sudo -u vpn -i -- curl ipinfo.io

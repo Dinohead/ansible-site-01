@@ -31,49 +31,83 @@
     state: present
 
 - name: USER | add user to samba group
+  become: true
+  become_user: root
   user:
     name: "{{ ubuntuCifsClient.user.name }}"
-    appdend: true
+    append: true
     groups: "{{ ubuntuCifsClient.group.name }}"
 
-- name: TEMPLATE | Template the smbcredentials file
-  become: root
+- name: FILE | Ensure smbcredentials directory exists
+  become: true
   become_user: root
-  template:
-    src: smbcredentials
-    dest: /root/.smbcredentials
+  file:
+    path: "{{ ubuntuCifsClient.smbCredentialsDir }}"
+    state: directory
     owner: root
     group: root
-    mode: "u=rw"
+    mode: 0700
 
-#
-##create credentials file
-#touch /home/drock/.smbcredentials
-#printf "username=$username" | sudo tee --append /home/drock/.smbcredentials > /dev/null
-#printf "\npassword=$password" | sudo tee --append /home/drock/.smbcredentials > /dev/null
-#printf "\ndomain=$domain" | sudo tee --append /home/drock/.smbcredentials > /dev/null
-#
-##make credentials visible only to root
-#sudo chown root /home/drock/.smbcredentials
-#sudo chmod 600 /home/drock/.smbcredentials
-#
-##define share properties
-#serverAddress=wopr.dinohead.ninja
-#shareName=Unsorted
-#mountPoint=/home/drock/wopr
-#writePrivilege=rw     #rw for read/write, ro for read only
-#smbCredentialsFile=/home/drock/.smbcredentials
-#
-#
-##Add line to /etc/fstab for share
-#printf "\n#automount $mountPoint on $serverAddress" | sudo tee --append /etc/fstab > /dev/null
-#
-#printf "\n//$serverAddress/$shareName $mountPoint cifs $writePrivilege,iocharset=utf8,credentials=$smbCredentialsFile,dir_mode=0775,gid=2473 0 0" | sudo tee --append /etc/fstab > /dev/null
-#
-#
-#
-##Create the mountpoint
-#mkdir $mountPoint
-#
-##mount the share
-#sudo mount -a
+- name: FILE | Ensure smbcredentials server subdirectories exist
+  become: true
+  become_user: root
+  file:
+    path: "{{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  with_items: "{{ ubuntuCifsClient.mount }}"
+  no_log: true
+
+- name: TEMPLATE | Template the smbcredentials file
+  become: true
+  become_user: root
+  template:
+    src: smbcredentials.j2
+    dest: "{{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server }}/{{ item.name }}"
+    owner: root
+    group: root
+    mode: 0600
+  with_items: "{{ ubuntuCifsClient.mount }}"
+  no_log: true
+
+- name: FILE | create server mount points
+  become: true
+  become_user: root
+  file:
+    path: /mnt/{{ item.server }}
+    state: directory
+    owner: root
+    group: "{{ ubuntuCifsClient.group.name }}"
+    mode: 0770
+  with_items: "{{ ubuntuCifsClient.mount }}"
+  no_log: true
+
+- name: FILE | create share mount points
+  become: true
+  become_user: root
+  file:
+    path: /mnt/{{ item.server }}/{{ item.name }}
+    state: directory
+    owner: root
+    group: "{{ ubuntuCifsClient.group.name }}"
+  with_items: "{{ ubuntuCifsClient.mount }}"
+  no_log: true
+
+- name: LINEINFILE | Add entries to /etc/fstab to mount shares on startup
+  become: true
+  become_user: root
+  lineinfile:
+    path: /etc/fstab
+    line: "//{{ item.fqdn }}/{{ item.name }} /mnt/{{ item.server}}/{{ item.name }} cifs {{ item.permission }},iocharset=utf8,credentials={{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server}}/{{ item.name }},file_mode=770,dir_mode=0770,gid=2473 0 0"
+    state: present
+  with_items: "{{ ubuntuCifsClient.mount }}"
+  no_log: true
+
+- name: COMMAND | Mount all shares defined in /etc/fstab
+  become: true
+  become_user: root
+  command: mount -a
+  args:
+      warn: false

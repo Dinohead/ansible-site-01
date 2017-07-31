@@ -71,13 +71,27 @@
     mode: "u=rw,g=r,o=r"
   register: ubuntuSetup_hostfile
 
-- name: SHELL | restart system if hostname was changed
+- name: APT | Add virtual kernel extra features
+  become: true
+  become_user: root
+  apt:
+    update_cache: true
+    name: linux-image-extra-virtual
+    state: present
+
+- name: Check if a reboot is required
+  stat:
+    path: /var/run/reboot-required
+    get_md5: false
+  register: ubuntuSetup_rebootRequired
+
+- name: SHELL | restart system if hostname was changed or kernel update was applied
   become: true
   become_user: root
   shell: sleep 2 && shutdown -r now "Ansible updates triggered"
   async: 1
   poll: 0
-  when: ubuntuSetup_hostname.changed or ubuntuSetup_hostfile.changed
+  when: ubuntuSetup_hostname.changed or ubuntuSetup_hostfile.changed or ubuntuSetup_rebootRequired.stat.exists
   register: ubuntuSetup_reboot
 
 - name: WAIT_FOR | Wait for ssh to resume
