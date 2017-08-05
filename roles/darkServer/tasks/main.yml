@@ -7,7 +7,12 @@
 # Author: Derek 'dRock' Halsey
 #========================
 
-- name: APT | Install openvpn
+- name: FILE | Ensure temporary directory is present
+  file:
+    path: "{{ darkServer.tempDir }}"
+    state: directory
+
+- name: APT | Install openvpn and unzip
   become: true
   become_user: root
   apt:
@@ -16,8 +21,11 @@
   with_items:
   - openvpn
   - unzip
+  - iptables-persistent
 
 - name: TEMPLATE | configure systemd service for openvpn
+  become: true
+  become_user: root
   template:
     src: openvpn.service.j2
     dest: /etc/systemd/system/openvpn@openvpn.service
@@ -32,54 +40,99 @@
     enabled: true
     name: openvpn@openvpn.service
 
-- name: UNARCHIVE | Download and extract PIA app
+- name: UNARCHIVE | Download and extract PIA certs
   unarchive:
-    src: https://example.com/example.zip
-    dest: /usr/local/bin
-    remote_src: True
+    src: https://www.privateinternetaccess.com/openvpn/openvpn.zip
+    dest: "{{ darkServer.tempDir }}"
+    remote_src: true
 
-##setup pia configuration file
-#sudo apt-get install unzip -y
-#cd /tmp
-#sudo wget https://www.privateinternetaccess.com/openvpn/openvpn.zip
-#sudo unzip openvpn.zip
-#sudo cp crl.rsa.2048.pem ca.rsa.2048.crt /etc/openvpn/
-#sudo vim /etc/openvpn/openvpn.conf
-#
-##pia credentials
-#sudo vim /etc/openvpn/login.txt
-#
-##open the following file and replace the following lines
-## foreign_option_1='dhcp-option DNS 193.43.27.132'
-## foreign_option_2='dhcp-option DNS 193.43.27.133'
-## foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
-#sudo vim /etc/openvpn/update-resolv-conf
-##replace with:
-#foreign_option_1='dhcp-option DNS 209.222.18.222'
-#foreign_option_2='dhcp-option DNS 209.222.18.218'
-#foreign_option_3='dhcp-option DNS 8.8.8.8'
-#
-##create vpn user
-#sudo adduser --disabled-login vpn
-#sudo usermod -a -G samba vpn
-#sudo usermod -a -G drock vpn
-#sudo usermod -a -G vpn drock
-#
-##isolate vpn user from internet
-#sudo iptables -F
-#sudo iptables -A OUTPUT ! -o lo -m owner --uid-owner vpn -j DROP
-#sudo apt-get install iptables-persistent -y
-#sudo vim /etc/openvpn/iptables.sh
-#sudo chmod +x /etc/openvpn/iptables.sh
-#sudo vim /etc/openvpn/routing.sh
-#sudo chmod +x /etc/openvpn/routing.sh
-#
-#sudo vim /etc/iproute2/rt_tables
-##add the following line:
-#200		vpn
-#
-#sudo vim /etc/sysctl.d/9999-vpn.conf
-#sudo sysctl -p
+
+- name: COPY | Move the extracted certs to /etc/openvpn
+  become: true
+  become_user: root
+  copy:
+    src: "{{ item }}"
+    dest: /etc/openvpn
+    remote_src: true
+  with_items:
+  - "{{ darkServer.tempDir }}/crl.rsa.2048.pem"
+  - "{{ darkServer.tempDir }}/ca.rsa.2048.crt"
+
+- name: TEMPLATE | Template out openvpn configuration file
+  become: true
+  become_user: root
+  template:
+    src: openvpn.conf.j2
+    dest: /etc/openvpn/openvpn.conf
+    owner: root
+    group: root
+
+- name: TEMPLATE | Template out PIA login credentials
+  become: true
+  become_user: root
+  template:
+    src: login.txt.j2
+    dest: /etc/openvpn/login.txt
+    owner: root
+    group: root
+    mode: "u=rw,g=,o="
+
+- name: LINEINFILE | Update DNS in openvpn update-resolv-conf script
+  become: true
+  become_user: root
+  lineinfile:
+    path: /etc/openvpn/update-resolv-conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+  - { regexp: 'foreign_option_1', line: "foreign_option_1='dhcp-option DNS {{ darkServer.dns.one }}'" }
+  - { regexp: 'foreign_option_2', line: "foreign_option_2='dhcp-option DNS {{ darkServer.dns.two }}'" }
+  - { regexp: 'foreign_option_3', line: "foreign_option_3='dhcp-option DNS {{ darkServer.dns.three }}'" }
+
+- name: USER | Add VPN user
+  become: true
+  become_user: root
+  user:
+    name: vpn
+    groups: samba
+
+- name: SHELL | Flush IP tabels and append new rules
+  become: true
+  become_user: root
+  command: "{{ item }}"
+  with_items:
+  - 'iptables -F'
+  - 'iptables -A OUTPUT ! -o lo -m owner --uid-owner vpn -j DROP'
+  - 'sudo netfilter-persistent save'
+
+- name: TEMPLATE | Template out VPN user IP tables, routing rules, and config Change Reverse Path Filtering
+  become: true
+  become_user: root
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
+  with_items:
+  - { src: iptables.sh.j2, dest: /etc/openvpn/iptables.sh }
+  - { src: routing.sh.j2, dest: /etc/openvpn/routing.sh }
+  - { src: 9999-vpn.conf.j2, dest: /etc/sysctl.d/9999-vpn.conf }
+
+- name: LINEINFILE | Configure Split Tunnel VPN Routing
+  become: true
+  become_user: root
+  lineinfile:
+    path: /etc/iproute2/rt_tables
+    line: "200	vpn"
+    mode: "u=rwx,g=rx,o=rx"
+
+
+- name: SHELL | Apply rules
+  become: true
+  become_user: root
+  command: sysctl -p
+
 #
 ##reboot and check configuration
 #sudo reboot now

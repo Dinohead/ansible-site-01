@@ -6,3 +6,17 @@
 #
 # Author: Derek 'dRock' Halsey
 #========================
+
+darkServer:
+  tempDir: /home/{{ ansible_user }}/tmp
+  country: sweden
+  pia:
+    username: "{{ vault_pia.username }}"
+    password: "{{ vault_pia.password }}"
+  dns:
+    one: 193.43.27.132
+    two: 193.43.27.133
+    three: 8.8.8.8
+  network:
+    ip: "{{ ansible_default_ipv4.address }}"
+    interface: "{{ ansible_default_ipv4.interface }}"
