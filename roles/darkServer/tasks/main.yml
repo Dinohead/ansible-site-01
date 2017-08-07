@@ -113,11 +113,11 @@
     dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: "u=rwx,g=rx,o=rx"
+    mode: "{{ item.mode }}"
   with_items:
-  - { src: iptables.sh.j2, dest: /etc/openvpn/iptables.sh }
-  - { src: routing.sh.j2, dest: /etc/openvpn/routing.sh }
-  - { src: 9999-vpn.conf.j2, dest: /etc/sysctl.d/9999-vpn.conf }
+  - { src: iptables.sh.j2, dest: /etc/openvpn/iptables.sh, mode: "u=rwx,g=rx,o=rx" }
+  - { src: routing.sh.j2, dest: /etc/openvpn/routing.sh, mode: "u=rwx,g=rx,o=rx" }
+  - { src: 9999-vpn.conf.j2, dest: /etc/sysctl.d/9999-vpn.conf, mode: "u=rw,g=r,o=r" }
 
 - name: LINEINFILE | Configure Split Tunnel VPN Routing
   become: true
@@ -125,8 +125,17 @@
   lineinfile:
     path: /etc/iproute2/rt_tables
     line: "200	vpn"
-    mode: "u=rwx,g=rx,o=rx"
+    mode: "u=rw,g=r,o=r"
 
+- name: FILE | ensure correct permissions on /etc/sysctl.d/
+  become: true
+  become_user: root
+  file:
+    path: /etc/sysctl.d/
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
 
 - name: SHELL | Apply rules
   become: true
@@ -141,51 +150,177 @@
 #sudo -u vpn -i -- curl ipinfo.io
 #sudo -u vpn -i -- cat /etc/resolv.conf
 #
-##############http://www.htpcguides.com/configure-deluge-for-vpn-split-tunneling-ubuntu-16-04/
-##if everything is good, continue to add deluge and configure
-#sudo add-apt-repository ppa:deluge-team/ppa
-#sudo apt-get update
-#sudo apt-get install deluged deluge-web -y
-#
-##configure logs
-#sudo mkdir -p /var/log/deluge
-#sudo chown -R vpn:vpn /var/log/deluge
-#sudo chmod -R 770 /var/log/deluge
-#sudo vim /etc/logrotate.d/deluge
-#
-##create systemd service for daemen and web
-#sudo vim /etc/systemd/system/deluged.service
-#sudo systemctl enable deluged.service
-#sudo vim /etc/systemd/system/deluge-web.service
-#sudo systemctl enable deluge-web.service
-#
-##create auto connect
-#sudo systemctl restart deluged.service deluge-web.service
-#sudo systemctl stop deluged.service deluge-web.service
-#
-#sudo vim /home/vpn/.config/deluge/web.conf
-##edit default_daemon:
-#"default_daemon": "127.0.0.1:58846",
-#
-#sudo systemctl restart deluged.service
-#sudo systemctl restart deluge-web.service
-#
-##deluge should be running now, but we can't get to it (that's a good thing)
-#
-##configure nginx
-#sudo apt-get install nginx -y
-#sudo unlink /etc/nginx/sites-enabled/default
-#sudo vim /etc/nginx/sites-available/reverse
-#sudo ln -s /etc/nginx/sites-available/reverse /etc/nginx/sites-enabled/reverse
-#
-##test nginx -t
-#sudo nginx -t
-#
-##start everything up
-#sudo systemctl restart nginx.service
-#sudo systemctl restart deluged.service
-#sudo systemctl restart deluge-web.service
-#
+
+- name: APT_REPOSITORY | Add PPA repository for deluge
+  become: true
+  become_user: root
+  apt_repository:
+    repo: 'ppa:deluge-team/ppa'
+    update_cache: true
+
+- name: APT | Install deluge
+  become: true
+  become_user: root
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items:
+  - deluged
+  - deluge-web
+
+- name: FILE | Create deluge logs directory
+  become: true
+  become_user: root
+  file:
+    path: /var/log/deluge
+    state: directory
+    owner: vpn
+    group: vpn
+    mode: "u=rwx,g=rwx,o="
+
+- name: TEMPLATE | Template logs rotate file and deluge services
+  become: true
+  become_user: root
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+  - { src: logrotate.d.j2, dest: /etc/logrotate.d/deluge }
+  - { src: deluged.service.j2, dest: /etc/systemd/system/deluged.service }
+  - { src: deluge-web.service.j2, dest: /etc/systemd/system/deluge-web.service }
+
+- name: Check if /home/vpn/.config/deluge/web.conf exists
+  become: true
+  become_user: root
+  stat:
+    path: /home/vpn/.config/deluge/web.conf
+    get_md5: false
+  register: darkServer_webConf
+
+- name: SYSTEMD | Enable and start deluge services. this will generate /home/vpn/.config/deluge/web.conf
+  become: true
+  become_user: root
+  systemd:
+    daemon_reload: true
+    enabled: true
+    name: "{{ item }}"
+    state: started
+  with_items:
+  - deluged.service
+  - deluge-web.service
+  when: not darkServer_webConf.stat.exists
+
+- name: PAUSE | Timing delay to start services
+  pause:
+    seconds: 5
+  when: not darkServer_webConf.stat.exists
+
+- name: SYSTEMD | Stop deluge services to edit /home/vpn/.config/deluge/web.conf
+  become: true
+  become_user: root
+  systemd:
+    daemon_reload: true
+    enabled: true
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+  - deluged.service
+  - deluge-web.service
+
+- name: LINEINFILE | Make Deluge Web UI Auto Connect to Deluge Daemon and apply dark theme
+  become: true
+  become_user: root
+  lineinfile:
+    path: /home/vpn/.config/deluge/web.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+  - { regexp: 'default_daemon', line: "  \"default_daemon\": \"127.0.0.1:58846\"," }
+  - { regexp: 'theme', line: "  \"theme\": \"dark\"," }
+
+- name: LINEINFILE | Make Deluge Web UI Auto Connect to Deluge Daemon and apply dark theme
+  become: true
+  become_user: root
+  lineinfile:
+    path: /home/vpn/.config/deluge/web.conf
+    regexp: "{{ item }}"
+    state: absent
+  with_items:
+  - pwd_sha1
+  - pwd_salt
+
+- name: LINEINFILE | Make Deluge Web UI Auto Connect to Deluge Daemon and apply dark theme
+  become: true
+  become_user: root
+  lineinfile:
+    path: /home/vpn/.config/deluge/web.conf
+    line: "{{ item.line }}"
+    insertafter: "{{ item.insertafter }}"
+    state: present
+  with_items:
+  - { insertafter: "enabled_plugins", line: "  \"pwd_sha1\": \"{{ darkServer.password.sha1 }}\"," }
+  - { insertafter: "interface", line: "  \"pwd_salt\": \"{{ darkServer.password.salt }}\","  }
+
+- name: SYSTEMD | Start deluge services
+  become: true
+  become_user: root
+  systemd:
+    daemon_reload: true
+    enabled: true
+    name: "{{ item }}"
+    state: started
+  with_items:
+  - deluged.service
+  - deluge-web.service
+
+- name: APT | Install nginx
+  become: true
+  become_user: root
+  apt:
+    name: nginx
+    state: present
+
+- name: FILE | Remove nginx default site from enabled sites
+  become: true
+  become_user: root
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: TEMPLATE | Configure Deluge Remote Access with nginx Reverse Proxy
+  become: true
+  become_user: root
+  template:
+    src: reverse.j2
+    dest: /etc/nginx/sites-available/reverse
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+- name: FILE | Add reverse proxy to enabled sites
+  become: true
+  become_user: root
+  file:
+    src: /etc/nginx/sites-available/reverse
+    dest: /etc/nginx/sites-enabled/reverse
+    state: link
+
+- name: SYSTEMD | Ensure all services are Restarted and Enabled
+  become: true
+  become_user: root
+  systemd:
+    enabled: true
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+  - openvpn@openvpn
+  - deluged.service
+  - deluge-web.service
+  - nginx
+
+
+
 ##log into mace.dinohead.ninj/deluge, password -deluge
 #
 #sudo systemctl restart nginx.service deluged.service deluge-web.service

@@ -1,0 +1,9 @@
+server {
+listen 80;
+server_name {{ darkServer.network.fqdn }} {{ darkServer.network.ip }};
+
+    location /deluge {
+     proxy_pass        http://127.0.0.1:8112/;
+     proxy_set_header  X-Deluge-Base "/deluge/";
+    }
+}

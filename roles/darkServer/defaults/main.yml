@@ -10,6 +10,9 @@
 darkServer:
   tempDir: /home/{{ ansible_user }}/tmp
   country: sweden
+  password:
+    sha1: "{{ vault_password.sha1 }}"
+    salt: "{{ vault_password.salt }}"
   pia:
     username: "{{ vault_pia.username }}"
     password: "{{ vault_pia.password }}"
@@ -20,3 +23,4 @@ darkServer:
   network:
     ip: "{{ ansible_default_ipv4.address }}"
     interface: "{{ ansible_default_ipv4.interface }}"
+    fqdn: "{{ hostvar.fqdn }}"
