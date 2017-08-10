@@ -142,15 +142,6 @@
   become_user: root
   command: sysctl -p
 
-#
-##reboot and check configuration
-#sudo reboot now
-#sudo systemctl status openvpn@openvpn.service.j2
-#curl ipinfo.io
-#sudo -u vpn -i -- curl ipinfo.io
-#sudo -u vpn -i -- cat /etc/resolv.conf
-#
-
 - name: APT_REPOSITORY | Add PPA repository for deluge
   become: true
   become_user: root
@@ -227,6 +218,8 @@
   with_items:
   - deluged.service
   - deluge-web.service
+  tags:
+    - config
 
 - name: LINEINFILE | Make Deluge Web UI Auto Connect to Deluge Daemon and apply dark theme
   become: true
@@ -238,8 +231,10 @@
   with_items:
   - { regexp: 'default_daemon', line: "  \"default_daemon\": \"127.0.0.1:58846\"," }
   - { regexp: 'theme', line: "  \"theme\": \"dark\"," }
+  tags:
+    - config
 
-- name: LINEINFILE | Make Deluge Web UI Auto Connect to Deluge Daemon and apply dark theme
+- name: LINEINFILE | Remove Web UI password
   become: true
   become_user: root
   lineinfile:
@@ -249,8 +244,10 @@
   with_items:
   - pwd_sha1
   - pwd_salt
+  tags:
+    - config
 
-- name: LINEINFILE | Make Deluge Web UI Auto Connect to Deluge Daemon and apply dark theme
+- name: LINEINFILE | Set Web UI password
   become: true
   become_user: root
   lineinfile:
@@ -261,6 +258,49 @@
   with_items:
   - { insertafter: "enabled_plugins", line: "  \"pwd_sha1\": \"{{ darkServer.password.sha1 }}\"," }
   - { insertafter: "interface", line: "  \"pwd_salt\": \"{{ darkServer.password.salt }}\","  }
+  no_log: true
+  tags:
+    - config
+
+- name: LINEINFILE | Configure security settings and download location
+  become: true
+  become_user: root
+  lineinfile:
+    path: /home/vpn/.config/deluge/core.conf
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+    state: present
+  with_items:
+  - { regexp: "upnp", line: "  \"upnp\": false," }
+  - { regexp: "natpmp", line: "  \"natpmp\": false,"  }
+  - { regexp: "utpex", line: "  \"utpex\": false,"  }
+  - { regexp: "lsd", line: "  \"lsd\": false,"  }
+  - { regexp: "enc_prefer_rc4", line: "  \"enc_prefer_rc4\": true,"  }
+  - { regexp: "download_location", line: "  \"download_location\": \"{{ darkServer.downloadDir }}\","  }
+  tags:
+    - config
+
+- name: LINEINFILE | Configure dht security setting
+  become: true
+  become_user: root
+  lineinfile:
+    path: /home/vpn/.config/deluge/core.conf
+    regexp: "\"dht\": true"
+    state: absent
+  tags:
+    - config
+
+
+- name: LINEINFILE | Configure dht security setting
+  become: true
+  become_user: root
+  lineinfile:
+    path: /home/vpn/.config/deluge/core.conf
+    line: "  \"dht\": false,"
+    insertafter: "cache_expiry"
+    state: present
+  tags:
+    - config
 
 - name: SYSTEMD | Start deluge services
   become: true
@@ -306,24 +346,30 @@
     dest: /etc/nginx/sites-enabled/reverse
     state: link
 
-- name: SYSTEMD | Ensure all services are Restarted and Enabled
+- name: SHELL | reboot the system to make changes "stick"
   become: true
   become_user: root
-  systemd:
-    enabled: true
-    name: "{{ item }}"
-    state: restarted
-  with_items:
-  - openvpn@openvpn
-  - deluged.service
-  - deluge-web.service
-  - nginx
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+
+- name: WAIT_FOR | Wait for ssh to resume
+  local_action:
+    module: wait_for
+    port: 22
+    host: "{{ darkServer.network.fqdn }}"
+    delay: 30
+    timeout: 400
+
+- name: FILE | Remove temporary directory
+  file:
+    path: "{{ darkServer.tempDir }}"
+    state: absent
 
 
+#check configuration
 
-##log into mace.dinohead.ninj/deluge, password -deluge
-#
-#sudo systemctl restart nginx.service deluged.service deluge-web.service
-#
-##check everything
-#sudo systemctl status openvpn.service.j2 deluged.service deluge-web.service && curl ipinfo.io && sudo -u vpn -i -- curl ipinfo.io
+#sudo systemctl status openvpn.service.j2 deluged.service deluge-web.service
+#curl ipinfo.io
+#sudo -u vpn -i -- curl ipinfo.io
+#sudo -u vpn -i -- cat /etc/resolv.conf

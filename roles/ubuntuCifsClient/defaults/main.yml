@@ -10,7 +10,7 @@
 ubuntuCifsClient:
   user:
     name: "{{ ansible_user }}"
-    password: "{{ vault_domainAdminPw }}"
+    password: "{{ vault.password.text }}"
   group:
     gid: 2473
     name: samba
@@ -19,7 +19,7 @@ ubuntuCifsClient:
 #   mounts should contain a list of the form:
 #    - name: video
 #      server: spok
-#      username: "{{ vault_domainAdminUser }}"
-#      password: "{{ vault_domainAdminPw }}"
+#      username: "{{ vault.domainUser }}"
+#      password: "{{ vault.password.text }}"
 #      domain: "{{ domain }}"
 #      permission: rw

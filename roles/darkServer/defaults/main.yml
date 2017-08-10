@@ -9,13 +9,14 @@
 
 darkServer:
   tempDir: /home/{{ ansible_user }}/tmp
-  country: sweden
+  country: ro
+  downloadDir: /mnt/spok/dev/download
   password:
-    sha1: "{{ vault_password.sha1 }}"
-    salt: "{{ vault_password.salt }}"
+    sha1: "{{ vault.password.sha1 }}"
+    salt: "{{ vault.password.salt }}"
   pia:
-    username: "{{ vault_pia.username }}"
-    password: "{{ vault_pia.password }}"
+    username: "{{ vault.pia.username }}"
+    password: "{{ vault.pia.password }}"
   dns:
     one: 193.43.27.132
     two: 193.43.27.133

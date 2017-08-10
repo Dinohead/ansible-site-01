@@ -11,6 +11,7 @@ lore.dinohead.ninja
 heimdall.dinohead.ninja
 mal.dinohead.ninja
 doc.dinohead.ninja
+ob1.dinohead.ninja
 
 #---------
 # groups
@@ -22,12 +23,16 @@ anakin.dinohead.ninja
 link.dinohead.ninja
 
 [ubuntu_desktop]
+ob1.dinohead.ninja
 
 [plex_server]
 link.dinohead.ninja
 
 [dark_server]
 anakin.dinohead.ninja
+
+[transcoder]
+ob1.dinohead.ninja
 
 [hyper_v_cluster]
 kirk.dinohead.ninja
@@ -57,6 +62,7 @@ dc
 [ubuntu:children]
 ubuntu_desktop
 ubuntu_server
+transcoder
 
 [linux:children]
 ubuntu

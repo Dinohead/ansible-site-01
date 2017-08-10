@@ -7,7 +7,7 @@
 # Author: dRock Halsey
 #========================
 
-- name: Shhhh... we're creatinga dark server
+- name: Create the Cluster VM
   hosts: "{{ variable_host }}"
   connection: local
   gather_facts: false
@@ -25,11 +25,3 @@
   - ubuntuCifsClient
   tags:
   - initalConfig
-
-- name: Initiate Dark Server
-  hosts: "{{ variable_host }}"
-  gather_facts: true
-  roles:
-  - darkServer
-  tags:
-  - darkServer

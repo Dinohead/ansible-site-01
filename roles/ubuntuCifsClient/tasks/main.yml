@@ -100,7 +100,7 @@
   become_user: root
   lineinfile:
     path: /etc/fstab
-    line: "//{{ item.fqdn }}/{{ item.name }} /mnt/{{ item.server}}/{{ item.name }} cifs {{ item.permission }},iocharset=utf8,credentials={{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server}}/{{ item.name }},file_mode=770,dir_mode=0770,gid=2473 0 0"
+    line: "//{{ item.fqdn }}/{{ item.name }} /mnt/{{ item.server}}/{{ item.name }} cifs {{ item.permission }},iocharset=utf8,credentials={{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server}}/{{ item.name }},file_mode=0770,dir_mode=0770,gid=2473 0 0"
     state: present
   with_items: "{{ ubuntuCifsClient.mount }}"
   no_log: true
