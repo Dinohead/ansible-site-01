@@ -1,0 +1,39 @@
+---
+#========================
+# File darkServer.yml
+#
+# Description: Balances VMs across the cluster
+#
+# Author: dRock Halsey
+#========================
+
+- name: Move All cluster resources to {{ variable_host }}
+  hosts: clustered
+  connection: local
+  gather_facts: false
+  serial: 1
+  tasks:
+
+  - name: WIN_SHELL | Move {{ hostvar.sdn }} to {{ variable_host }}
+    delegate_to: "{{ variable_host }}"
+    win_shell: |-
+      try {
+        get-clusterresource -cluster {{ groups.hyper_v_cluster[0] }} | where resourcetype -eq 'Virtual Machine' | where name -eq 'Virtual Machine {{ hostvar.sdn }}' | get-vm | Move-ClusterVirtualMachineRole -migrationtype live -node {{ variable_host }} -wait 0 -ea stop
+      } catch [Microsoft.FailoverClusters.PowerShell.ClusterCmdletException] {
+        Write-Output "The virtual machine resource is already on the node.  Migration is not needed."
+      }
+
+- name: Move spok to {{ variable_host }}
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+  - name: WIN_SHELL | Move spok to {{ variable_host }}
+    delegate_to: "{{ variable_host }}"
+    win_shell: |-
+      try {
+        get-clusterresource -cluster {{ groups.hyper_v_cluster[0] }} | where resourcetype -eq 'Virtual Machine' | where name -eq 'Virtual Machine spok' | get-vm | Move-ClusterVirtualMachineRole -migrationtype live -node {{ variable_host }} -wait 0 -ea stop
+      } catch [Microsoft.FailoverClusters.PowerShell.ClusterCmdletException] {
+        Write-Output "The virtual machine resource is already on the node.  Migration is not needed."
+      }

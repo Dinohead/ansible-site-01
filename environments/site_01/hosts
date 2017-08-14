@@ -12,6 +12,8 @@ heimdall.dinohead.ninja
 mal.dinohead.ninja
 doc.dinohead.ninja
 ob1.dinohead.ninja
+mace.dinohead.ninja
+yoda.dinohead.ninja
 
 #---------
 # groups
@@ -24,6 +26,8 @@ link.dinohead.ninja
 
 [ubuntu_desktop]
 ob1.dinohead.ninja
+yoda.dinohead.ninja
+mace.dinohead.ninja
 
 [plex_server]
 link.dinohead.ninja
@@ -33,6 +37,8 @@ anakin.dinohead.ninja
 
 [transcoder]
 ob1.dinohead.ninja
+yoda.dinohead.ninja
+mace.dinohead.ninja
 
 [hyper_v_cluster]
 kirk.dinohead.ninja
@@ -46,6 +52,13 @@ heimdall.dinohead.ninja
 mal.dinohead.ninja
 doc.dinohead.ninja
 
+[clustered]
+testVM.dinohead.ninja
+anakin.dinohead.ninja
+link.dinohead.ninja
+ob1.dinohead.ninja
+mace.dinohead.ninja
+
 #---------
 # groups of groups
 #---------
@@ -53,6 +66,7 @@ doc.dinohead.ninja
 [site_01:children]
 windows
 linux
+clustered
 
 [windows:children]
 hyper_v_cluster

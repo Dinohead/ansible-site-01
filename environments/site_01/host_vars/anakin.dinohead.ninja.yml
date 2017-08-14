@@ -3,6 +3,7 @@ hostvar:
   fqdn: anakin.dinohead.ninja
   sdn: anakin
   processors: 2
+  node: "{{ groups.hyper_v[0] }}"
   memory:
     type: DynamicMemory
     min: 1GB

@@ -11,6 +11,7 @@ newClusterVm:
   fqdn: "{{ hostvar.fqdn }}"
   sdn: "{{ hostvar.sdn }}"
   processors: "{{ hostvar.processors }}"
+  node: "{{ hostvar.node }}"
   memory:
     type: "{{ hostvar.memory.type }}"
     min: "{{ hostvar.memory.min }}"

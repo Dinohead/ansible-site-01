@@ -155,16 +155,20 @@
                Write-Host "Success"
            }
        } Get-VMNetworkAdapter -VMName {{ newClusterVm.sdn }} | Set-VMNetworkConfiguration -IPAddress {{ newClusterVm.network.ip }} -Subnet {{ newClusterVm.network.subnet }} -DNSServer {{ newClusterVm.network.dns }} -DefaultGateway {{ newClusterVm.network.gateway }}
+  tags:
+  - setNetwork
 
 - name: WIN_SHELL | Restart VM
   delegate_to: "{{ newClusterVm.hyperV.host }}"
   win_shell: restart-vm {{ newClusterVm.sdn }} -force
+#  tags:
+#  - setNetwork
 
 - name: WIN_SHELL | Connect NIC
   delegate_to: "{{ newClusterVm.hyperV.host }}"
   win_shell: Connect-VMNetworkAdapter -VMName {{ newClusterVm.sdn }} -SwitchName {{ newClusterVm.network.vSwitch }}
 
-- name: WAIT_FOR | Wait for response from testVM on port 22
+- name: WAIT_FOR | Wait for response from {{ newClusterVm.sdn }} on port 22
   local_action: wait_for
   args:
     port: 22
@@ -186,3 +190,12 @@
   win_shell: |-
     if ( !( Get-ClusterResource -Cluster {{ newClusterVm.hyperV.cluster }} -Name "Virtual Machine {{ newClusterVm.sdn }}" -erroraction 'ignore' ) ) {
       Add-ClusterVirtualMachineRole -VMName {{ newClusterVm.sdn }} -Cluster {{ newClusterVm.hyperV.cluster }} }
+
+- name: WIN_SHELL | Move {{ newClusterVm.sdn }} to {{ newClusterVm.node }}
+  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  win_shell: |-
+    try {
+      get-clusterresource -cluster {{ newClusterVm.hyperV.cluster }} | where resourcetype -eq 'Virtual Machine' | where name -eq 'Virtual Machine {{ newClusterVm.sdn }}' | get-vm | Move-ClusterVirtualMachineRole -migrationtype live -node {{ newClusterVm.node }} -wait 0 -ea stop
+    } catch [Microsoft.FailoverClusters.PowerShell.ClusterCmdletException] {
+      Write-Output "The virtual machine resource is already on the node.  Migration is not needed."
+    }

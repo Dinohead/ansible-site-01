@@ -25,3 +25,12 @@
   - ubuntuCifsClient
   tags:
   - initalConfig
+
+- name: Initial Ububtu Configuration
+  hosts: "{{ variable_host }}"
+  gather_facts: true
+  roles:
+  - ubuntuDesktop
+  - transcoder
+  tags:
+  - transcoder

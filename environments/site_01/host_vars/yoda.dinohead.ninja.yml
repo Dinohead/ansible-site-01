@@ -1,7 +1,7 @@
 ---
 hostvar:
-  fqdn: ob1.dinohead.ninja
-  sdn: ob1
+  fqdn: yoda.dinohead.ninja
+  sdn: yoda
   processors: 2
   node: "{{ groups.hyper_v[1] }}"
   memory:
@@ -10,7 +10,7 @@ hostvar:
     max: 6GB
   network:
     vSwitch: SW-1G
-    ip: 10.0.1.30
+    ip: 10.0.1.32
     subnet: 255.255.255.0
     dns: 10.0.1.2,10.0.1.22,10.0.1.222
     gateway: 10.0.1.1

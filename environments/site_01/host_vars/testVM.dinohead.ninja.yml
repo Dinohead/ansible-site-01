@@ -3,6 +3,7 @@ hostvar:
   fqdn: testVM.dinohead.ninja
   sdn: testVM
   processors: 2
+  node: "{{ groups.hyper_v[0] }}"
   memory:
     type: DynamicMemory
     min: 1GB
@@ -14,3 +15,19 @@ hostvar:
     dns: 10.0.1.2,10.0.1.22,10.0.1.222
     gateway: 10.0.1.1
   vhdxTemplate: "{{ hyperV.template.ubuntuServer1604 }}"
+  mount:
+  - name: dev
+    server: spok
+    fqdn: spok.dinohead.ninja
+    username: "{{ vault.domainUser }}"
+    password: "{{ vault.password.text }}"
+    domain: "{{ domain }}"
+    permission: rw
+
+  - name: backup
+    server: T1000
+    fqdn: t1000.dinohead.ninja
+    username: "{{ vault.domainUser }}"
+    password: "{{ vault.password.text }}"
+    domain: "{{ domain }}"
+    permission: rw
