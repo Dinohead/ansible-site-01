@@ -4,7 +4,7 @@
 #
 # Description: Destroys a VM on from the failover cluster
 #
-# Author: dRock Halsey
+# Author: Derek 'dRock' Halsey
 #========================
 
 - name: PLAYBOOK | Seek and destroy a cluster VM

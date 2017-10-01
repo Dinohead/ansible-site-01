@@ -46,7 +46,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0700
+    mode: "u=rwx,g=,o="
 
 - name: FILE | Ensure smbcredentials server subdirectories exist
   become: true
@@ -56,7 +56,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0700
+    mode: "u=rwx,g=,o="
   with_items: "{{ ubuntuCifsClient.mount }}"
   no_log: true
 
@@ -68,7 +68,7 @@
     dest: "{{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server }}/{{ item.name }}"
     owner: root
     group: root
-    mode: 0600
+    mode: "u=rw,g=,o="
   with_items: "{{ ubuntuCifsClient.mount }}"
   no_log: true
 
@@ -80,7 +80,7 @@
     state: directory
     owner: root
     group: "{{ ubuntuCifsClient.group.name }}"
-    mode: 0770
+    mode: "u=rwx,g=rw,o="
   with_items: "{{ ubuntuCifsClient.mount }}"
   no_log: true
 

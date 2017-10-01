@@ -4,7 +4,7 @@
 #
 # Description: Creates a VM on the failover cluster
 #
-# Author: dRock Halsey
+# Author: Derek 'dRock' Halsey
 #========================
 
 - name: PLAYBOOK | newUbuntuServer - create a new Ubuntu Server on the Hyper-V host

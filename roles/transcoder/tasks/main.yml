@@ -24,7 +24,7 @@
     create: true
   with_items:
   - { line: "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main", path: "/etc/apt/sources.list.d/google-chrome.list" }
-  - { line: "deb http://dl.google.com/linux/chrome-remote-desktop/deb stable main", path: "/etc/apt/sources.list.d/chromeos.list" }
+  - { line: "deb [arch=amd64] http://dl.google.com/linux/chrome-remote-desktop/deb stable main", path: "/etc/apt/sources.list.d/chromeos.list" }
 
 - name: APT_REPOSITORY | Add PPA repository for makemkv and handbrake
   become: true

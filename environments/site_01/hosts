@@ -2,7 +2,7 @@
 # individual
 #---------
 
-testVM.dinohead.ninja
+#testVM.dinohead.ninja
 anakin.dinohead.ninja
 link.dinohead.ninja
 kirk.dinohead.ninja
@@ -20,7 +20,7 @@ yoda.dinohead.ninja
 #---------
 
 [ubuntu_server]
-testVM.dinohead.ninja
+#testVM.dinohead.ninja
 anakin.dinohead.ninja
 link.dinohead.ninja
 
@@ -77,6 +77,7 @@ dc
 ubuntu_desktop
 ubuntu_server
 transcoder
+dark_server
 
 [linux:children]
 ubuntu

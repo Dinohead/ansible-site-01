@@ -1,0 +1,14 @@
+---
+#========================
+# File ubuntuSetup.yml
+#
+# Description: Setup Ubuntu Hosts
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: Setup Ubuntu hosts
+  hosts: ubuntu
+  gather_facts: false
+  roles:
+  - ubuntuSetup

@@ -1,0 +1,14 @@
+---
+#========================
+# File ubuntuUpdate.yml
+#
+# Description: Update Ubuntu hosts
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: Update Ubuntu hosts
+  hosts: ubuntu
+  gather_facts: false
+  roles:
+  - ubuntuUpdate

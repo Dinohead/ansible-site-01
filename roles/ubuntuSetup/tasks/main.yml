@@ -13,7 +13,7 @@
     state: directory
     owner: "{{ ubuntuSetup.user.name }}"
     group: "{{ ubuntuSetup.user.name }}"
-    mode: "u=rwx"
+    mode: "u=rwx,g=,o="
   vars:
     ansible_password: "{{ ubuntuSetup.user.password }}"
 
@@ -23,7 +23,7 @@
     dest: "{{ item.dest }}"
     owner: "{{ ubuntuSetup.user.name }}"
     group: "{{ ubuntuSetup.user.name }}"
-    mode: "u=rw"
+    mode: "u=rw,g=,o="
   with_items:
   - { src: id_rsa.j2, dest: "/home/{{ ubuntuSetup.user.name }}/.ssh/id_rsa" }
   - { src: id_rsa.pub.j2, dest: "/home/{{ ubuntuSetup.user.name }}/.ssh/id_rsa.pub" }
@@ -35,6 +35,9 @@
     line: "{{ ubuntuSetup.ssh.authorizedKeys }}"
     path: /home/{{ ubuntuSetup.user.name }}/.ssh/authorized_keys
     state: present
+    owner: "{{ ubuntuSetup.user.name }}"
+    group: "{{ ubuntuSetup.user.name }}"
+    mode: "u=rw,g=,o="
     create: true
   vars:
     ansible_password: "{{ ubuntuSetup.user.password }}"

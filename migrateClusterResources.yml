@@ -4,7 +4,7 @@
 #
 # Description: Balances VMs across the cluster
 #
-# Author: dRock Halsey
+# Author: Derek 'dRock' Halsey
 #========================
 
 - name: Move All cluster resources to {{ variable_host }}
