@@ -3,7 +3,7 @@ hostvar:
   fqdn: testVM.dinohead.ninja
   sdn: testVM
   processors: 2
-  node: "{{ groups.hyper_v[0] }}"
+  node: "{{ groups.hyper_v[1] }}"
   memory:
     type: DynamicMemory
     min: 1GB
