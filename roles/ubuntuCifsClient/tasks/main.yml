@@ -92,6 +92,7 @@
     state: directory
     owner: root
     group: "{{ ubuntuCifsClient.group.name }}"
+    mode: "u=rwx,g=rwx,o="
   with_items: "{{ ubuntuCifsClient.mount }}"
   no_log: true
 
