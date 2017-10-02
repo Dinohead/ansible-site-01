@@ -64,7 +64,7 @@
   become: true
   become_user: root
   template:
-    src: smbcredentials.j2
+    src: smbCredentials.j2
     dest: "{{ ubuntuCifsClient.smbCredentialsDir }}/{{ item.server }}/{{ item.name }}"
     owner: root
     group: root
