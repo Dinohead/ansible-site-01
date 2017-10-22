@@ -1,0 +1,33 @@
+---
+hostvar:
+  fqdn: retcon_dev.dinohead.ninja
+  sdn: retcon_dev
+  processors: 2
+  node: "{{ groups.hyper_v[1] }}"
+  memory:
+    type: DynamicMemory
+    min: 1GB
+    max: 4GB
+  network:
+    vSwitch: SW-1G
+    ip: 10.0.1.33
+    subnet: 255.255.255.0
+    dns: 10.0.1.2,10.0.1.22,10.0.1.222
+    gateway: 10.0.1.1
+  vhdxTemplate: "{{ hyperV.template.ubuntuServer1604 }}"
+  mount:
+  - name: dev
+    server: spok
+    fqdn: spok.dinohead.ninja
+    username: "{{ vault.domainUser }}"
+    password: "{{ vault.password.text }}"
+    domain: "{{ domain }}"
+    permission: rw
+
+  - name: backup
+    server: T1000
+    fqdn: t1000.dinohead.ninja
+    username: "{{ vault.domainUser }}"
+    password: "{{ vault.password.text }}"
+    domain: "{{ domain }}"
+    permission: rw
