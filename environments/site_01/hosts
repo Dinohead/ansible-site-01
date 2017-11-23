@@ -15,6 +15,7 @@ ob1.dinohead.ninja
 mace.dinohead.ninja
 yoda.dinohead.ninja
 retcon_dev.dinohead.ninja
+strange.dinohead.ninja
 
 #---------
 # groups
@@ -25,6 +26,7 @@ retcon_dev.dinohead.ninja
 anakin.dinohead.ninja
 link.dinohead.ninja
 retcon_dev.dinohead.ninja
+strange.dinohead.ninja
 
 [ubuntu_desktop]
 ob1.dinohead.ninja
