@@ -23,3 +23,5 @@ hostvar:
     password: "{{ vault.password.text }}"
     domain: "{{ domain }}"
     permission: rw
+  domain:
+  - dashboard.dinohead.net

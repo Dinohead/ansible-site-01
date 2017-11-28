@@ -1,0 +1,169 @@
+---
+#========================
+# File darkServer.yml
+#
+# Description: Creates a dark server on the failover cluster
+#
+# Author: Derek 'dRock' Halsey
+#========================
+
+- name: Create the Cluster VM
+  hosts: "{{ variable_host }}"
+  connection: local
+  gather_facts: false
+  roles:
+  - newClusterVm
+  tags:
+  - spawn
+
+- name: Initial Ububtu Configuration
+  hosts: "{{ variable_host }}"
+  gather_facts: false
+  roles:
+  - ubuntuSetup
+  - ubuntuUpdate
+  - ubuntuCifsClient
+  tags:
+  - initalConfig
+
+- name: Install and configure Nginx
+  hosts: "{{ variable_host }}"
+  gather_facts: false
+  tags:
+  - nginx
+  roles:
+  - nginx
+
+#########################
+# Get certificats
+#########################
+
+- name: Get certs for domains
+  hosts: "{{ variable_host }}"
+  gather_facts: false
+  tags:
+  - certs
+  tasks:
+
+  - name: SERVICE | Stop Nginx
+    become: true
+    become_user: root
+    service:
+      name: nginx
+      state: stopped
+
+  - name: Get certificates
+    become: true
+    become_user: root
+    command: certbot certonly -n --standalone --agree-tos --email hmd2473@gmail.com --preferred-challenges tls-sni -d {{ item }}
+    with_items: "{{ hostvar.domain }}"
+
+  - name: SERVICE | Start Nginx
+    become: true
+    become_user: root
+    service:
+      name: nginx
+      state: started
+
+- name: Configure domains
+  hosts: "{{ variable_host }}"
+  gather_facts: false
+  tags:
+  - domains
+  tasks:
+
+  - include_role:
+      name: nginx_domain
+    vars:
+      nginx_domain:
+        url: "{{ item }}"
+    with_items: "{{ hostvar.domain }}"
+
+#########################
+# Get certificats
+#########################
+#- name: Install and configure Nginx
+#  hosts: "{{ variable_host }}"
+#  gather_facts: false
+#  tags:
+#  - certs
+#  tasks:
+#
+#  - name: TEMPLATE | Template the demo.conf file
+#    become: true
+#    become_user: root
+#    template:
+#      src: demo.conf.j2
+#      dest: /etc/nginx/sites-available/demo.conf
+#      owner: root
+#      group: root
+#      mode: "u=rw,g=r,o=r"
+#
+#  - name: FILE | Link the demo.conf file to activate it
+#    become: true
+#    become_user: root
+#    file:
+#      src: /etc/nginx/sites-available/demo.conf
+#      path: /etc/nginx/sites-enabled/demo.conf
+#      state: link
+
+#  - name: COMMAND | Generate self-signed certs
+#    become: true
+#    become_user: root
+#    command: "{{ item }}"
+#    with_items:
+#    - openssl req -new -newkey rsa:4096 -x509 -days 3650 -nodes -subj /C=US/ST=NE/L=Ralston/O=NA/CN=localhost -keyout /etc/ssl/insecure.key -out /etc/ssl/private/insecure.pem
+#    - openssl dhparam -out /etc/ssl/dhparam.pem 2048
+
+
+#  - name: COMMAND | Reload nginx
+#    become: true
+#    become_user: root
+#    command: nginx -s reload
+
+# sudo certbot certonly --webroot --agree-tos --email hmd2473@gmail.com -d dashboard.dinohead.ninja -w /var/www/demo
+
+
+#
+#  - name: SYSTEMD | Restart nginx
+#    become: true
+#    become_user: root
+#    systemd:
+#      daemon_reload: true
+#      enabled: true
+#      name: nginx
+#      state: restarted
+
+
+#  - name: COMMAND | Generate self-signed certs
+#    become: true
+#    become_user: root
+#    command: "{{ item }}"
+#    with_items:
+#    - openssl req -new -newkey rsa:4096 -x509 -days 3650 -nodes -subj /C=US/ST=NE/L=Ralston/O=NA/CN=localhost -keyout /etc/ssl/insecure.key -out /etc/ssl/private/insecure.pem
+#    - openssl dhparam -out /etc/ssl/dhparam.pem 2048
+#    tags:
+#    - certs
+#
+#  - name: TEMPLATE | Acme-tiny.py and issue-certificate.sh scripts
+#    become: true
+#    become_user: root
+#    template:
+#      src: "{{ item.src }}"
+#      dest: "{{ item.dest }}"
+#      owner: root
+#      group: root
+#      mode: "u=rwx,g=rx,o=rx"
+#    with_items:
+#    - { src: acme-tiny.py, dest: /usr/local/bin/acme-tiny.py }
+#    - { src: issue-certificate.sh, dest: /usr/local/bin/issue-certificate.sh }
+#
+#  - name: FILE | Ensure the acme-challenge directory exists
+#    become: true
+#    become_user: root
+#    file:
+#      path: /var/www/letsencrypt/.well-known/acme-challenge
+#      owner: www-data
+#      group: www-data
+#      mode: "u=rwx,g=rx,o=rx"
+#      state: directory
