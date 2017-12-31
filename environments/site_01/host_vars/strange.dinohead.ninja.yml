@@ -24,4 +24,4 @@ hostvar:
     domain: "{{ domain }}"
     permission: rw
   domain:
-  - dashboard.dinohead.net
+  - nextcloud.dinohead.net
