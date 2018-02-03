@@ -88,5 +88,5 @@ dark_server
 
 [linux:children]
 ubuntu
-centos-workstation
+centos_workstation
 

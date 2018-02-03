@@ -33,6 +33,22 @@
   - linuxSetup
 
 #-----
+# Add repo01 to yum repos
+#-----
+- name: PLAY | Install Packages
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  tags:
+  - yumClient
+  roles:
+  - role: yum_client
+    yum_client:
+      repos:
+      - name: packages
+        baseUrl: "http://repo01.dinohead.ninja/packages"
+        gpgCheck: 0
+        enabled: 1
+#-----
 # Install Packages
 #-----
 - name: PLAY | Install Packages
@@ -56,7 +72,7 @@
       name: "{{ item }}"
       state: present
       update_cache: yes
-    with_items: "{{ host.rpms }}"
+    with_items: "{{ hostvar.rpms }}"
 
 #-----
 # Disable Chrome repo
@@ -83,7 +99,18 @@
   gather_facts: false
   tags:
   - cifs
-  roles: [ cifs_client ]
+  roles: 
+  - role: cifs_client 
+    cifs_client:
+      user:
+        name: "{{ ansible_user }}"
+        password: "{{ vault.password.text }}"
+      group:
+        gid: 2473
+        name: samba
+      smbCredentialsDir: /root/smbcredentials
+      mount: "{{ hostvar.mount }}"
+
 
 #-----
 # Configure ansible controller
@@ -133,7 +160,7 @@
   roles:
   - role: intellij
     intellij:
-      binary_src: https://www.jetbrains.com/idea/download/download-thanks.html?platform=linux
+      binary_src: 'http://repo01/binaries/ideaIU-2017.3.4.tar.gz'
 
 #-----
 # Customize Gnome 3
@@ -159,8 +186,17 @@
   roles:
   - role: vmware_remote_console
     vmware_remote_console:
-      src: http://repo01/binaries/vmware/vmrc/VMware-Remote-Console-10.0.2-7096020.x86_64.bundle
+      src: http://repo01/binaries/VMware-Remote-Console-10.0.2-7096020.x86_64.bundle
       name: VMware-Remote-Console-10.0.2-7096020.x86_64.bundle
       temp_dir: /home/{{ ansible_user_id }}/vmware_remote_console_install
+
+- name: ROLE | Configure Macbook Trackpad
+  hosts: ["{{ variable_host }}"]
+  gather_facts: true
+  tags:
+  - trackpad
+  roles:
+  - role: macbook_trackpad_on_gnome
+
 
 
