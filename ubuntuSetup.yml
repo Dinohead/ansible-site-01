@@ -1,6 +1,6 @@
 ---
 #========================
-# File ubuntuSetup.yml
+# File linuxSetup.yml
 #
 # Description: Setup Ubuntu Hosts
 #
@@ -11,4 +11,4 @@
   hosts: ubuntu
   gather_facts: false
   roles:
-  - ubuntuSetup
+  - linuxSetup

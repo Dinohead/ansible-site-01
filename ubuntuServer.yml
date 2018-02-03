@@ -20,7 +20,7 @@
   hosts: "{{ variable_host }}"
   gather_facts: false
   roles:
-  - ubuntuSetup
+  - linuxSetup
   - ubuntuUpdate
   - ubuntuCifsClient
   tags:

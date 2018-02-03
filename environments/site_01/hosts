@@ -15,10 +15,13 @@ ob1.dinohead.ninja
 mace.dinohead.ninja
 yoda.dinohead.ninja
 retcon_dev.dinohead.ninja
+tars.dinohead.ninja
 
 #---------
 # groups
 #---------
+[centos_workstation]
+tars.dinohead.ninja
 
 [ubuntu_server]
 #testVM.dinohead.ninja
@@ -83,4 +86,5 @@ dark_server
 
 [linux:children]
 ubuntu
+centos-workstation
 
