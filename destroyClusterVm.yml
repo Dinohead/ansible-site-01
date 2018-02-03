@@ -17,7 +17,7 @@
     delegate_to: "{{ groups.hyper_v_cluster[0] }}"
     win_shell: |-
       try {
-        get-clusterresource -cluster {{ groups.hyper_v_cluster[0] }} | where resourcetype -eq 'Virtual Machine' | where name -eq 'Virtual Machine {{ hostvar.sdn }}' | get-vm | Move-ClusterVirtualMachineRole -migrationtype live -node {{ groups.hyper_v_cluster[0] }} -wait 0 -ea stop
+        get-clusterresource -cluster {{ groups.hyper_v_cluster[0] }} | where resourcetype -eq 'Virtual Machine' | where name -eq 'Virtual Machine {{ hostvar.sdn }}' | get-vm | Move-ClusterVirtualMachineRole -migrationtype live -node {{ groups.hyper_v[0] }} -wait 0 -ea stop
       } catch [Microsoft.FailoverClusters.PowerShell.ClusterCmdletException] {
         Write-Output "The virtual machine resource is already on the node.  Migration is not needed."
       }

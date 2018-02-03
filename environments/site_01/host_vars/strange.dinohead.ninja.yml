@@ -1,0 +1,27 @@
+---
+hostvar:
+  fqdn: strange.dinohead.ninja
+  sdn: strange
+  processors: 1
+  node: "{{ groups.hyper_v[1] }}"
+  memory:
+    type: DynamicMemory
+    min: 1GB
+    max: 4GB
+  network:
+    vSwitch: SW-1G
+    ip: 10.0.1.35
+    subnet: 255.255.255.0
+    dns: 10.0.1.2,10.0.1.22,10.0.1.222
+    gateway: 10.0.1.1
+  vhdxTemplate: "{{ hyperV.template.ubuntuServer1604 }}"
+  mount:
+  - name: file
+    server: spok
+    fqdn: spok.dinohead.ninja
+    username: "{{ vault.domainUser }}"
+    password: "{{ vault.password.text }}"
+    domain: "{{ domain }}"
+    permission: rw
+  domain:
+  - nextcloud.dinohead.net
