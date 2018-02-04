@@ -192,7 +192,7 @@
       Add-ClusterVirtualMachineRole -VMName {{ newClusterVm.sdn }} -Cluster {{ newClusterVm.hyperV.cluster }} }
 
 - name: WIN_SHELL | Move to default hyper-v host
-  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  delegate_to: "{{ newClusterVm.hyperV.cluster }}"
   win_shell: |-
     try {
       get-clusterresource -cluster {{ newClusterVm.hyperV.cluster }} | where resourcetype -eq 'Virtual Machine' | where name -eq 'Virtual Machine {{ newClusterVm.sdn }}' | get-vm | Move-ClusterVirtualMachineRole -migrationtype live -node {{ newClusterVm.node }} -wait 0 -ea stop
