@@ -43,6 +43,15 @@ hostvar:
     permission: rw
 
   rpms:
+<<<<<<< HEAD
+=======
+  - gitflow
+  - mtdev-devel
+  - mtdev
+  - xorg-x11-server-devel
+  - google-chrome
+  - slack
+>>>>>>> 94116fd04a1f4b06dd060fbaaa208291a53d934a
   - ElectricFence
   - OpenEXR-libs
   - PyQt4
