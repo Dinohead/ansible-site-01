@@ -186,7 +186,7 @@
       Add-DnsServerResourceRecordA -Name "{{ newClusterVm.sdn }}" -ZoneName "{{ domain }}" -AllowUpdateAny -IPv4Address "{{ newClusterVm.network.ip }}" }
 
 - name: WIN_SHELL | Add VM to Cluster
-  delegate_to: "{{ newClusterVm.hyperV.host }}"
+  delegate_to: "{{ newClusterVm.hyperV.cluster }}"
   win_shell: |-
     if ( !( Get-ClusterResource -Cluster {{ newClusterVm.hyperV.cluster }} -Name "Virtual Machine {{ newClusterVm.sdn }}" -erroraction 'ignore' ) ) {
       Add-ClusterVirtualMachineRole -VMName {{ newClusterVm.sdn }} -Cluster {{ newClusterVm.hyperV.cluster }} }
