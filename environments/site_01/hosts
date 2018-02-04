@@ -16,10 +16,14 @@ mace.dinohead.ninja
 yoda.dinohead.ninja
 retcon_dev.dinohead.ninja
 strange.dinohead.ninja
+repo01.dinohead.ninja
 
 #---------
 # groups
 #---------
+
+[binary_server]
+repo01.dinohead.ninja
 
 [ubuntu_server]
 #testVM.dinohead.ninja
@@ -27,6 +31,7 @@ anakin.dinohead.ninja
 link.dinohead.ninja
 retcon_dev.dinohead.ninja
 strange.dinohead.ninja
+repo01.dinohead.ninja
 
 [ubuntu_desktop]
 ob1.dinohead.ninja
@@ -62,6 +67,7 @@ anakin.dinohead.ninja
 link.dinohead.ninja
 ob1.dinohead.ninja
 mace.dinohead.ninja
+repo01.dinohead.ninja
 
 #---------
 # groups of groups
@@ -85,4 +91,3 @@ dark_server
 
 [linux:children]
 ubuntu
-
