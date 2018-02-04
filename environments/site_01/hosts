@@ -17,10 +17,17 @@ yoda.dinohead.ninja
 retcon_dev.dinohead.ninja
 strange.dinohead.ninja
 repo01.dinohead.ninja
+ansible01.dinohead.ninja
+tars.dinohead.ninja
 
 #---------
 # groups
 #---------
+[ansible-controllers]
+ansible01.dinohead.ninja
+
+[centos_workstation]
+tars.dinohead.ninja
 
 [binary_server]
 repo01.dinohead.ninja
@@ -32,6 +39,9 @@ link.dinohead.ninja
 retcon_dev.dinohead.ninja
 strange.dinohead.ninja
 repo01.dinohead.ninja
+
+[redhat_server]
+ansible01.dinohead.ninja
 
 [ubuntu_desktop]
 ob1.dinohead.ninja
@@ -68,6 +78,7 @@ link.dinohead.ninja
 ob1.dinohead.ninja
 mace.dinohead.ninja
 repo01.dinohead.ninja
+ansible01.dinohead.ninja
 
 #---------
 # groups of groups
@@ -89,5 +100,10 @@ ubuntu_server
 transcoder
 dark_server
 
+[redhat:children]
+redhat_server
+
 [linux:children]
 ubuntu
+redhat
+centos_workstation
