@@ -56,7 +56,7 @@
       name: "{{ item }}"
       state: present
       update_cache: yes
-    with_items: "{{ host.rpms }}"
+    with_items: "{{ hostvar.rpms }}"
 
 #-----
 # Disable Chrome repo
