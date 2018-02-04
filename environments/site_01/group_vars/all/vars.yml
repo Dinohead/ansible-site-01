@@ -9,3 +9,4 @@ hyperV:
     ubuntuServer1604: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-server-1604.vhdx
     ubuntuDesktop1604: C:\ClusterStorage\cluster-storage-01\vhdx-templates\ubuntu-desktop-1604.vhdx
     rhel703d: C:\ClusterStorage\cluster-storage-01\vhdx-templates\rhel703d.vhdx
+    rhel704d: C:\ClusterStorage\cluster-storage-01\vhdx-templates\rhel704d.vhdx

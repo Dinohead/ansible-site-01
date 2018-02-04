@@ -28,3 +28,8 @@ newClusterVm:
     storagePath: "{{ hyperV.storagePath }}"
     vhdxTemplate: "{{ hostvar.vhdxTemplate }}"
   dnsServer: "{{ groups.dc[0] }}"
+
+# The Add-ClusterVirtualMachineRole powershell comandlet seems to be broken
+# I've added this variable to turn off clustering for now
+# TODO figure out how to fix this
+  cluster: false

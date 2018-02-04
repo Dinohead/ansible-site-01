@@ -190,6 +190,7 @@
   win_shell: |-
     if ( !( Get-ClusterResource -Cluster {{ newClusterVm.hyperV.cluster }} -Name "Virtual Machine {{ newClusterVm.sdn }}" -erroraction 'ignore' ) ) {
       Add-ClusterVirtualMachineRole -VMName {{ newClusterVm.sdn }} -Cluster {{ newClusterVm.hyperV.cluster }} }
+  when: newClusterVm.cluster
 
 - name: WIN_SHELL | Move to default hyper-v host
   delegate_to: "{{ newClusterVm.hyperV.cluster }}"
@@ -199,3 +200,4 @@
     } catch [Microsoft.FailoverClusters.PowerShell.ClusterCmdletException] {
       Write-Output "The virtual machine resource is already on the node.  Migration is not needed."
     }
+  when: newClusterVm.cluster
