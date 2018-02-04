@@ -1,0 +1,166 @@
+---
+#=====
+# File:
+# playbooks/createDevelopmentHost.yml
+# Description:
+#
+# Author:
+#  - Derek 'dRock' Halsey
+#
+# Example:
+#
+#=====
+
+- name: PLAYBOOK | createDevelopmentHost.yml - Development machines should never be pets
+  gather_facts: false
+  hosts: localhost
+  tags:
+  - time
+  tasks:
+  - set_fact:
+      beginTime: "{{ lookup('pipe', 'date +%Y\"-\"%d\"-\"%m\" \"%H\":\"%M\":\"%S') }}"
+
+  - debug:
+      msg: "Start Time - {{ beginTime }}"
+
+#-----
+# Inital Linux Setup
+#-----
+- name: Initial Linux Configuration
+  hosts: "{{ variable_host }}"
+  gather_facts: false
+  roles:
+  - linuxSetup
+
+#-----
+# Install Packages
+#-----
+- name: PLAY | Install Packages
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  tags:
+  - yumPackages
+  tasks:
+  - name: Enable EPEL
+    become: true
+    become_user: root
+    yum:
+      name: epel-release
+      state: present
+      update_cache: yes
+
+  - name: Install Packages
+    become: true
+    become_user: root
+    yum:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+    with_items: "{{ hostvar.rpms }}"
+
+#-----
+# Disable Chrome repo
+#-----
+
+- name: PLAY | Disable Chrome Repo
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  tags:
+  - chromeRepo
+  tasks:
+  - become: true
+    become_user: root
+    lineinfile:
+      path: /etc/yum.repos.d/google-chrome.repo
+      line: 'enabled=0'
+      regexp: '^enabled'
+
+#-----
+# Add cifs mounts
+#-----
+- name: ROLE | Create cifs shares
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  tags:
+  - cifs
+  roles: [ cifs_client ]
+
+#-----
+# Configure ansible controller
+#-----
+- name: PLAY | Configure ansible 2.3 controller
+  hosts: ["{{variable_host }}"]
+  gather_facts: false
+  tags:
+  - ansibleController
+  roles:
+  - role: ansible_controller
+    ansible_controller:
+      user: drock
+      path: "/home/drock/venv_ansible-2.3.0.0"
+      version: 2.3.3.0
+
+- name: PLAY | Configure ansible 2.4 controller
+  hosts: ["{{variable_host }}"]
+  gather_facts: false
+  tags:
+  - ansibleController
+  roles:
+  - role: ansible_controller
+    ansible_controller:
+      user: drock
+      path: "/home/drock/venv_ansible-2.4.2.0"
+      version: 2.4.2.0
+
+#-----
+# Enable xrdp
+#-----
+- name: ROLE | Enable xrdp
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  roles: [xrdp]
+  tags:
+  - xrdp
+
+#-----
+# Enable intellij
+#-----
+- name: ROLE | Install Intellij
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  tags:
+  - intellij
+  roles:
+  - role: intellij
+    intellij:
+      binary_src: https://www.jetbrains.com/idea/download/download-thanks.html?platform=linux
+
+#-----
+# Customize Gnome 3
+#-----
+- name: ROLE | Customize Gnome 3
+  hosts: ["{{ variable_host }}"]
+  gather_facts: false
+  tags:
+  - gnome
+  roles:
+
+  - name: ROLE | Customize Gnome 3 for user
+    role: gnome_customize
+    gnome_customize:
+      user: drock
+      dash2dock_src: https://extensions.gnome.org/review/download/7799.shell-extension.zip
+
+- name: ROLE | Add VMware_remote console
+  hosts: ["{{ variable_host }}"]
+  gather_facts: true
+  tags:
+  - vmrc
+  roles:
+  - role: vmware_remote_console
+    vmware_remote_console:
+      src: http://repo01/binaries/vmware/vmrc/VMware-Remote-Console-10.0.2-7096020.x86_64.bundle
+      name: VMware-Remote-Console-10.0.2-7096020.x86_64.bundle
+      temp_dir: /home/{{ ansible_user_id }}/vmware_remote_console_install
+
+
